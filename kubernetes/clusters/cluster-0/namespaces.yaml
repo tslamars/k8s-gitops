@@ -39,4 +39,4 @@ spec:
             secretRef:
               name: sops-age
       target:
-        labelSelector: substitution.flux/enabled=true
+        labelSelector: substitution.flux/enabled="true"
