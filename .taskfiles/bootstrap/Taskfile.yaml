@@ -1,0 +1,82 @@
+---
+version: '3.41.0'
+
+vars:
+  CLUSTER_ID: '{{.CLUSTER_ID| default "cluster-0"}}'
+
+env:
+  CLUSTER_ID: '{{.CLUSTER_ID}}'
+  ROOT_DIR: '{{.ROOT_DIR}}'
+
+tasks:
+  setup:
+    desc: "Ensure required CLIs are installed and initialized"
+    summary: |
+      This task checks if the required dependencies are installed on your system.
+      It then initializes the Helmfile environment to ensure it's ready for use.
+    platforms: [darwin, linux]
+    cmds:
+      - cmd: |
+          helmfile init
+    preconditions:
+      - which helmfile helm kubectl
+    silent: true
+    interactive: true
+
+  bootstrap:
+    desc: "Bootstrap the FluxCD operator"
+    summary: |
+      Bootstraps the FluxCD operator in the Kubernetes cluster.
+
+      The command applies the FluxCD operator configuration using Helm.
+      Make sure the necessary environment variables (`CLUSTER_ID`) are set before proceeding.
+    prompt: You're bootstraping FluxCD operator configuration "kubernetes/clusters/{{.CLUSTER_ID}}" ... Do you want to continue?
+    deps: [setup, secrets]
+    cmds:
+      - cmd: |
+          helmfile apply --file {{.ROOT_DIR}}/kubernetes/bootstrap/helmfile.yaml --skip-diff-on-install {{.CLI_ARGS}}
+    requires:
+      vars: [CLUSTER_ID]
+    preconditions:
+      - test -f kubernetes/bootstrap/helmfile.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/flux-system/flux-operator/app/values.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/flux-system/flux-operator/instance/values.yaml
+    silent: true
+
+  diff:
+    desc: "Display the differences between the current and desired FluxCD operator configurations"
+    summary: |
+      This task compares the current state of the FluxCD operator with the desired state specified in the Helmfile.
+      Use this to preview changes before applying them to the cluster.
+    cmds:
+      - cmd: |
+          echo "Comparing FluxCD operator configurations... {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}"
+          helmfile diff -f {{.ROOT_DIR}}/kubernetes/bootstrap/helmfile.yaml
+    requires:
+      vars: [CLUSTER_ENV, CLUSTER_ID]
+    preconditions:
+      - test -f kubernetes/bootstrap/helmfile.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/flux-system/flux-operator/app/values.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/flux-system/flux-operator/instance/values.yaml
+    silent: true
+
+  secrets:
+    desc: "Install cluster secrets and configs; Only to be used when updating secrets manually"
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: '{{.HOME}}/keys/raspbernetes-d72f2d61e4ac.json'
+    cmds:
+      - cmd: |
+          kubectl create namespace flux-system --dry-run=client -oyaml | kubectl apply -f -
+          sops --decrypt "{{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/flux-sops-age-secret.enc.yaml" | kubectl apply -f -
+          sops --decrypt "{{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/cluster-secrets.enc.yaml" | kubectl apply -f -
+          sops --decrypt "{{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/github-auth.enc.yaml" | kubectl apply -f -
+          kubectl apply -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/cluster-config.yaml
+        silent: false
+    preconditions:
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/flux-sops-age-secret.enc.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/github-auth.enc.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/cluster-secrets.enc.yaml
+      - test -f {{.ROOT_DIR}}/kubernetes/clusters/{{.CLUSTER_ID}}/secrets/cluster-config.yaml
+    requires:
+      vars: [CLUSTER_ID]
+    silent: true

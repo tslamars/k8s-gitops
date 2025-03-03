@@ -1,0 +1,91 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kubefed
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: kubefed
+      version: 0.10.0
+      sourceRef:
+        kind: HelmRepository
+        name: kubefed-charts
+        namespace: flux-system
+      interval: 10m
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  values:
+    # Default values for kubefed.
+    # This is a YAML-formatted file.
+    # Declare variables to be passed into your templates.
+
+    ## Configuration values for kubefed controllermanager deployment.
+    ##
+    controllermanager:
+      controller:
+        repository: kubespheredev
+        image: kubefed
+        tag: v0.8.1-multi-arch
+        imagePullPolicy: IfNotPresent
+        logLevel: 2
+        forceRedeployment: false
+        env: {}
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+      webhook:
+        repository: kubespheredev
+        image: kubefed
+        tag: v0.8.1-multi-arch
+        imagePullPolicy: IfNotPresent
+        logLevel: 8
+        forceRedeployment: false
+        env: {}
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+      certManager:
+        enabled: false
+        rootCertificate:
+          organizations: []
+          dnsNames:
+            - ca.webhook.kubefed
+          commonName: ca.webhook.kubefed
+      postInstallJob:
+        repository: bitnami
+        image: kubectl
+        tag: 1.17.16
+        imagePullPolicy: IfNotPresent

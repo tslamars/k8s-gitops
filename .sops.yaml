@@ -1,0 +1,19 @@
+---
+# creation rules are evaluated sequentially, the first match wins
+creation_rules:
+  # secret files using GCP KMS to encrypt the stored PGP keys
+  - path_regex: kubernetes/clusters/.*/secrets/sops-gpg.encrypted.ya?ml
+    encrypted_regex: ^(data|stringData)$
+    unencrypted-regex: ^(description|metadata)$
+    age: age1ft4dldx5zezaajkju2gsaugvtqqhvughw3hw29ekl7qvdcukfq3spcfntq
+  # Kubernetes secret files using SOPS
+  - path_regex: kubernetes/.*/*.enc.ya?ml
+    encrypted_regex: ^(data|stringData)$
+    unencrypted-regex: ^(description|metadata)$
+    age: age1ft4dldx5zezaajkju2gsaugvtqqhvughw3hw29ekl7qvdcukfq3spcfntq
+  # Talos secret files using SOPS
+  - path_regex: talos/.*/.*.enc.ya?ml
+    age: age1ft4dldx5zezaajkju2gsaugvtqqhvughw3hw29ekl7qvdcukfq3spcfntq
+  # Terraform secret files using SOPS
+  - path_regex: terraform/.*/*.enc.ya?ml
+    age: age1ft4dldx5zezaajkju2gsaugvtqqhvughw3hw29ekl7qvdcukfq3spcfntq

@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.raspbernetes.com/meta.pkg.crossplane.io/configuration_v1.json
+apiVersion: meta.pkg.crossplane.io/v1
+kind: Configuration
+metadata:
+  name: gitops
+  annotations:
+    meta.crossplane.io/maintainer: Michael Fornaro (@xUnholy)
+    meta.crossplane.io/source: github.com/xunholy/k8s-gitops/tree/main/packages/gitops
+    meta.crossplane.io/license: MIT
+    meta.crossplane.io/description: My example of using crossplane
+spec:
+  dependsOn:
+    - provider: xpkg.upbound.io/upbound/provider-gcp:v0.30.0
+      version: ">=v0.30.0"

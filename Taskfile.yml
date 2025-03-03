@@ -1,0 +1,23 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3.41.0'
+
+vars:
+  CLUSTER: cluster-0
+  GITHUB_USER: xunholy
+  GITHUB_REPO: k8s-gitops
+  GITHUB_BRANCH: main
+
+includes:
+  fluxcd: .taskfiles/bootstrap
+  core: .taskfiles/core
+  flux: .taskfiles/flux
+  docs: .taskfiles/mkdocs
+  talos: .taskfiles/talos
+
+tasks:
+  flux:
+    desc: "Install Fluxv2 into a cluster"
+    cmds:
+      - task: flux:secrets
+      - task: flux:bootstrap

@@ -1,0 +1,71 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base/actions-runner-system
+  - ../../base/crossplane-system
+  - ../../base/democratic-csi
+  - ../../base/development
+  - ../../base/game-servers
+  - ../../base/home-system
+  - ../../base/istio-ingress
+  - ../../base/istio-system
+  - ../../base/kube-guardian
+  - ../../base/kube-system
+  - ../../base/network-system
+  - ../../base/nginx-ingress
+  - ../../base/observability
+  - ../../base/security-system
+  - ../../base/actions-runner-system/gha-runner-scale-set/ks.yaml
+  - ../../base/actions-runner-system/gha-runner-scale-set-controller/ks.yaml
+  - ../../base/crossplane-system/crossplane/ks.yaml
+  - ../../base/democratic-csi/democratic-csi/ks.yaml
+  # - ../../base/development/backstage/ks.yaml
+  - ../../base/flux-system/addons/ks.yaml
+  - ../../base/game-servers/enemy-territory/ks.yaml
+  - ../../base/home-system/emqx/ks.yaml
+  - ../../base/home-system/home-assistant/ks.yaml
+  - ../../base/home-system/jellyseerr/ks.yaml
+  - ../../base/home-system/prowlarr/ks.yaml
+  - ../../base/home-system/qbittorrent/ks.yaml
+  - ../../base/home-system/radarr/ks.yaml
+  - ../../base/home-system/recyclarr/ks.yaml
+  - ../../base/home-system/sabnzbd/ks.yaml
+  - ../../base/home-system/sonarr/ks.yaml
+  - ../../base/home-system/tautulli/ks.yaml
+  - ../../base/istio-ingress/istio-gateway/ks.yaml
+  - ../../base/istio-system/flagger/ks.yaml
+  - ../../base/istio-system/istio-base/ks.yaml
+  - ../../base/istio-system/istio-cni/ks.yaml
+  - ../../base/istio-system/istiod/ks.yaml
+  - ../../base/kube-guardian/kube-guardian/ks.yaml
+  - ../../base/kube-system/cilium/ks.yaml
+  - ../../base/kube-system/descheduler/ks.yaml
+  - ../../base/kube-system/kubelet-csr-approver/ks.yaml
+  - ../../base/kube-system/metrics-server/ks.yaml
+  - ../../base/kube-system/reflector/ks.yaml
+  # - ../../base/kube-system/tetragon/ks.yaml
+  - ../../base/network-system/cert-manager/ks.yaml
+  - ../../base/network-system/cloudflare-ddns/ks.yaml
+  - ../../base/network-system/cloudflared/ks.yaml
+  # - ../../base/network-system/dex/ks.yaml
+  # - ../../base/network-system/dex-k8s-authenticator/ks.yaml
+  - ../../base/network-system/echo-server/ks.yaml
+  - ../../base/network-system/external-dns/ks.yaml
+  - ../../base/network-system/node-feature-discovery/ks.yaml
+  - ../../base/network-system/oauth2-proxy/ks.yaml
+  - ../../base/nginx-ingress/nginx-ingress/ks.yaml
+  # - ../../base/observability/goldilocks/ks.yaml
+  # - ../../base/observability/grafana/ks.yaml
+  # - ../../base/observability/jaeger/ks.yaml
+  # - ../../base/observability/kiali/ks.yaml
+  - ../../base/observability/kromgo/ks.yaml
+  # - ../../base/observability/kube-prometheus-stack/ks.yaml
+  # - ../../base/observability/loki/ks.yaml
+  # - ../../base/observability/otel/ks.yaml
+  # - ../../base/observability/thanos/ks.yaml
+  # - ../../base/observability/vpa/ks.yaml
+  # - ../../base/security-system/kyverno/ks.yaml
+  # - ../../base/security-system/gatekeeper/ks.yaml

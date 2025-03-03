@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: istio-cni
+  namespace: istio-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cni
+      version: 1.24.3
+      sourceRef:
+        kind: HelmRepository
+        name: istio-charts
+        namespace: flux-system
+      interval: 10m
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: warn
+  maxHistory: 3
+  # TODO: These resources need more data points to be considered accurate.
+  # values:
+  #   cni:
+  #     # Resources allocated based on Robusta KRR output
+  #     resources:
+  #       requests:
+  #         cpu: 50m
+  #         memory: 512Mi

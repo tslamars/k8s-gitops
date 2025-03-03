@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.raspbernetes.com/pkg.crossplane.io/provider_v1.json
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp-gke
+spec:
+  package: xpkg.upbound.io/upbound/provider-gcp-gke:v1.1.0
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.raspbernetes.com/pkg.crossplane.io/provider_v1.json
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-gcp-gkehub
+spec:
+  package: xpkg.upbound.io/upbound/provider-gcp-gkehub:v1.1.0
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.raspbernetes.com/pkg.crossplane.io/provider_v1.json
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-helm
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/provider-helm:v0.18.1
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.raspbernetes.com/pkg.crossplane.io/provider_v1.json
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-github
+spec:
+  package: xpkg.upbound.io/coopnorge/provider-github:v0.12.0

@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/helmfile
+
+helmDefaults:
+  force: true
+  timeout: 600
+  wait: true
+  waitForJobs: true
+
+repositories:
+  - name: kustomize-mutating-webhook
+    url: https://xunholy.github.io/fluxcd-kustomize-mutating-webhook
+
+  - name: jetstack
+    url: https://charts.jetstack.io
+
+releases:
+  - name: flux-operator
+    namespace: flux-system
+    chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
+    version: 0.17.0
+    wait: true
+    values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/clusters/{{ requiredEnv "CLUSTER_ID"}}/flux-system/flux-operator/app/values.yaml']
+
+  - name: flux-instance
+    namespace: flux-system
+    chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
+    version: 0.17.0
+    wait: true
+    values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/clusters/{{ requiredEnv "CLUSTER_ID"}}/flux-system/flux-operator/instance/values.yaml']
+    needs: ['flux-system/flux-operator']
+
+  - name: cert-manager
+    namespace: network-system
+    chart: jetstack/cert-manager
+    version: v1.17.1
+    wait: true
+    values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/namespaces/base/network-system/cert-manager/app/values.yaml']
+
+  - name: kustomize-mutating-webhook
+    namespace: flux-system
+    chart: kustomize-mutating-webhook/kustomize-mutating-webhook
+    version: 0.4.2
+    wait: false
+    values: ['{{ requiredEnv "ROOT_DIR" }}/kubernetes/clusters/{{ requiredEnv "CLUSTER_ID"}}/flux-system/kustomize-mutating-webhook/app/values.yaml']
+    needs: ['network-system/cert-manager']

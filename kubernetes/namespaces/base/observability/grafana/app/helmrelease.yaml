@@ -1,0 +1,267 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: grafana
+  namespace: observability
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: grafana
+      version: 8.10.1
+      sourceRef:
+        kind: HelmRepository
+        name: grafana-charts
+        namespace: flux-system
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  values:
+    # RATIONALE: The secrets are never exposed in the repository and only in-cluster which requires RBAC
+    assertNoLeakedSecrets: false
+    replicas: 1
+    env:
+      GF_EXPLORE_ENABLED: true
+      GF_DATE_FORMATS_USE_BROWSER_LOCALE: true
+      GF_DATE_FORMATS_FULL_DATE: "MMM Do, YYYY hh:mm:ss a"
+      GF_DATE_FORMATS_INTERVAL_SECOND: "hh:mm:ss a"
+      GF_DATE_FORMATS_INTERVAL_MINUTE: "hh:mm a"
+      GF_DATE_FORMATS_INTERVAL_HOUR: "DD/MM hh:mm a"
+      GF_DATE_FORMATS_INTERVAL_DAY: "DD/MM"
+      GF_DATE_FORMATS_INTERVAL_MONTH: "MM-YYYY"
+      GF_DATE_FORMATS_INTERVAL_YEAR: "YYYY"
+    grafana.ini:
+      server:
+        root_url: 'https://grafana.${CLUSTER_DOMAIN}'
+      auth.basic:
+        disable_login_form: true
+      auth.github:
+        enabled: true
+        allow_sign_up: true
+        scopes: user:email,read:org
+        auth_url: https://github.com/login/oauth/authorize
+        token_url: https://github.com/login/oauth/access_token
+        api_url: https://api.github.com/user
+        allowed_organizations: raspbernetes
+        client_id: '${GRAFANA_AUTH_GITHUB_CLIENT_ID}'
+        client_secret: '${GRAFANA_AUTH_GITHUB_CLIENT_SECRET}'
+      auth.generic_oauth:
+        enabled: true
+        allow_sign_up: true
+        name: Dex
+        client_id: '${GRAFANA_AUTH_GENERIC_CLIENT_ID}'
+        client_secret: '${GRAFANA_AUTH_GENERIC_CLIENT_SECRET}'
+        scopes: openid profile email groups
+        auth_url: 'https://dex.${CLUSTER_DOMAIN}/auth'
+        token_url: 'https://dex.${CLUSTER_DOMAIN}/token'
+        api_url: 'https://dex.${CLUSTER_DOMAIN}/userinfo'
+      auth.generic_oauth.group_mapping:
+        role_attribute_path: "contains(groups[*], 'raspbernetes:k8s-admins') && 'Admin' || contains(groups[*], 'people') && 'Viewer'"
+        org_id: 1
+      auth.github.group_mapping:
+        role_attribute_path: "contains(groups[*], 'raspbernetes:k8s-admins') && 'Admin' || contains(groups[*], 'people') && 'Viewer'"
+        org_id: 1
+    sidecar:
+      dashboards:
+        enabled: true
+        labelValue: ""
+        label: grafana_dashboard
+        folderAnnotation: grafana_folder
+        searchNamespace: ALL
+        provider:
+          disableDelete: true
+          foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+        searchNamespace: ALL
+    plugins:
+      - grafana-piechart-panel
+      - grafana-worldmap-panel
+      - grafana-clock-panel
+      - isovalent-hubble-datasource
+      - natel-discrete-panel
+      - pr0ps-trackmap-panel
+      - vonage-status-panel
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+    datasources:
+      datasources.yaml:
+        apiVersion: 1
+        deleteDatasources:
+          - name: Loki
+            orgId: 1
+          - name: Alertmanager
+            orgId: 1
+        datasources:
+          - name: Prometheus
+            type: prometheus
+            uid: prometheus
+            access: proxy
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/
+            isDefault: true
+            # (OPTIONAL) Only required when some dashboards don't correctly set the datasource and you want to override it using the dashboard's uid
+            # uid: "Prometheus"
+          - name: Loki
+            type: loki
+            uid: loki
+            access: proxy
+            url: http://loki-gateway.observability.svc.cluster.local:80
+            jsonData:
+              maxLines: 250
+          - name: Alertmanager
+            type: alertmanager
+            uid: alertmanager
+            access: proxy
+            url: http://kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093
+            jsonData:
+              implementation: prometheus
+    dashboards:
+      default:
+        cert-manager:
+          url: https://gitlab.com/uneeq-oss/cert-manager-mixin/-/raw/master/dashboards/cert-manager.json
+          datasource: Prometheus
+        cilium-dashboard:
+          url: https://raw.githubusercontent.com/cilium/cilium/v1.16.5/install/kubernetes/cilium/files/cilium-agent/dashboards/cilium-dashboard.json
+          datasource: Prometheus
+        cilium-operator-dashboard:
+          url: https://raw.githubusercontent.com/cilium/cilium/v1.16.5/install/kubernetes/cilium/files/cilium-agent/dashboards/cilium-operator-dashboard.json
+          datasource: Prometheus
+        # Source: https://grafana.com/grafana/dashboards/18015-cilium-policy-verdicts/
+        cilium-policy-verdict-dashboard:
+          gnetId: 18015
+          revision: 4
+          datasource: Prometheus
+        flux-cluster:
+          url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/cluster.json
+          datasource: Prometheus
+        flux-control-plane:
+          url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/control-plane.json
+          datasource: Prometheus
+        gatekeeper-dashboard:
+          url: https://grafana.com/api/dashboards/15763/revisions/1/download
+          datasource: Prometheus
+        hubble-dashboard:
+          url: https://raw.githubusercontent.com/cilium/cilium/v1.16.5/examples/kubernetes/addons/prometheus/files/grafana-dashboards/hubble-dashboard.json
+          datasource: Prometheus
+        # Istio dashboards must be kept in parity with the version deployed
+        # https://grafana.com/grafana/dashboards/7639/revisions
+        # https://grafana.com/grafana/dashboards/?search=istio
+        istio-mesh:
+          gnetId: 7639
+          revision: 239
+          datasource: Prometheus
+        istio-service:
+          gnetId: 7636
+          revision: 239
+          datasource: Prometheus
+        istio-workload:
+          gnetId: 7630
+          revision: 239
+          datasource: Prometheus
+        istio-performence:
+          gnetId: 11829
+          revision: 239
+          datasource: Prometheus
+        istio-control-plane:
+          gnetId: 7645
+          revision: 239
+          datasource: Prometheus
+        istio-wasm:
+          gnetId: 13277
+          revision: 239
+          datasource: Prometheus
+        kubernetes-api-server:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-api-server.json
+          datasource: Prometheus
+        kubernetes-coredns:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json
+          datasource: Prometheus
+        kubernetes-global:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-global.json
+          datasource: Prometheus
+        kubernetes-namespaces:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-namespaces.json
+          datasource: Prometheus
+        kubernetes-nodes:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-nodes.json
+          datasource: Prometheus
+        kubernetes-pods:
+          url: https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-views-pods.json
+          datasource: Prometheus
+        node-exporter-full:
+          url: https://grafana.com/api/dashboards/1860/revisions/31/download
+          datasource: Prometheus
+        sealed-secrets:
+          url: https://raw.githubusercontent.com/bitnami-labs/sealed-secrets/master/contrib/prometheus-mixin/dashboards/sealed-secrets-controller.json
+          datasource: Prometheus
+        # speedtest:
+        #   url: https://raw.githubusercontent.com/billimek/prometheus-speedtest-exporter/master/speedtest-exporter.json
+        #   datasource: Prometheus
+        thanos-overview:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/overview.json
+          datasource: Prometheus
+        thanos-compact:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/compact.json
+          datasource: Prometheus
+        thanos-querier:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/query.json
+          datasource: Prometheus
+        thanos-store:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/store.json
+          datasource: Prometheus
+        thanos-receiver:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/receive.json
+          datasource: Prometheus
+        thanos-sidecar:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/sidecar.json
+          datasource: Prometheus
+        thanos-ruler:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/rule.json
+          datasource: Prometheus
+        thanos-replicate:
+          url: https://raw.githubusercontent.com/thanos-io/thanos/main/examples/dashboards/bucket-replicate.json
+          datasource: Prometheus
+        velero:
+          gnetId: 11055
+          revision: 2
+          datasource: Prometheus
+        velero-stats:
+          gnetId: 16829
+          revision: 3
+          datasource: Prometheus
+    persistence:
+      enabled: false

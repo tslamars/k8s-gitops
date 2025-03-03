@@ -1,0 +1,11 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: observability
+
+resources:
+  - etcd-client-cert.enc.yaml
+  - helmrelease.yaml
+  - secret.enc.yaml
+  - virtualservice.yaml

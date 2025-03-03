@@ -1,0 +1,85 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app nginx-ingress
+  namespace: nginx-ingress
+spec:
+  interval: 5m
+  releaseName: ingress-nginx
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: 4.12.0
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx-chart
+        namespace: flux-system
+      interval: 10m
+  install:
+    timeout: 10m
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  driftDetection:
+    mode: enabled
+  maxHistory: 3
+  values:
+    udp:
+      '27960': "game-servers/enemy-territory:27960"
+      # '19132': "game-servers/minecraft-bedrock-minecraft-bedrock:19132"
+    controller:
+      service:
+        enableHttp: true
+        enableHttps: true
+        annotations:
+          io.cilium/lb-ipam-ips: ${CLUSTER_LB_NGINX_INGRESS_GATEWAY}
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+          namespace: nginx-ingress
+          namespaceSelector:
+            any: true
+      config:
+        # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-stream-responses
+        proxy-stream-responses: '999999'
+        enable-real-ip: "true"
+        use-forwarded-headers: "true"
+        enable-ocsp: "true"
+        force-ssl-redirect: "true"
+        log-format-escape-json: "true"
+        ssl-protocols: TLSv1.3
+        hsts-max-age: 31449600
+        keep-alive: 120
+        keep-alive-requests: 10000
+        proxy-connect-timeout: 120
+        proxy-read-timeout: 120
+        proxy-send-timeout: 120
+      extraArgs:
+        default-ssl-certificate: 'istio-ingress/raspbernetes-com-le'
+      replicaCount: 1
+      resources:
+        limits:
+          memory: 512Mi
+        requests:
+          cpu: 25m
+          memory: 256Mi

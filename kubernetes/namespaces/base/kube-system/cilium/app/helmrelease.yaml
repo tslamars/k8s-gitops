@@ -1,0 +1,59 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2beta2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  interval: 5m
+  timeout: 10m
+  chart:
+    spec:
+      chart: cilium
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: cilium-chart
+        namespace: flux-system
+      # The HelmRelease version of Cilium MUST match the version installed via Talos to avoid collisions on cluster rebuilds
+      version: 1.17.1
+  install:
+    replace: true
+    crds: CreateReplace
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+      retries: 3
+      strategy: rollback
+    cleanupOnFail: true
+    crds: CreateReplace
+  test:
+    enable: true
+  rollback:
+    recreate: true
+    force: true
+    cleanupOnFail: true
+  uninstall:
+    keepHistory: false
+  # TODO: Disabled for now
+  # driftDetection:
+  #   mode: enabled
+  maxHistory: 3
+  valuesFrom:
+    - kind: ConfigMap
+      name: cilium-values
+  # Required: Using Kustomize helmChart can't pass the Helm chart validation because of the serviceMonitor CRDs, therefore these are disabled in the values.yaml however, re-enabled via the HelmRelease
+  # The values are merged in the order given, with the later values overwriting earlier, and then spec.values overwriting those
+  values:
+    # Enable Gateway API here as the CRDs may not be deployed at the time the CNI is installed via Talos.
+    gatewayAPI:
+      # TODO: Manually installed https://gateway-api.sigs.k8s.io/guides/#installing-gateway-api
+      enabled: false
+    ingressController:
+      service:
+        annotations:
+          io.cilium/lb-ipam-ips: ${CLUSTER_LB_CILIUM_INGRESS}

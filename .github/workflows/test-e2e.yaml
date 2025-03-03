@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: "Flux: Run E2E Tests In KIND"
+
+on:
+  workflow_dispatch: {}
+
+env:
+  DEFAULT_BRANCH: main
+
+# TODO: Fine-grained scope
+# permissions:
+#   contents: write      # (REQUIRED): [read] Used for actions/checkout - [write] Used for FluxCD bootstrap
+#   pull-requests: write # (REQUIRED): [write] Used for FluxCD bootstrap
+#   id-token: 'write'    # (REQUIRED): Used for requesting the JWT
+
+permissions: write-all
+
+jobs:
+  kubernetes:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Setup Tools
+        run: |
+          brew install fluxcd/tap/flux go-task/tap/go-task sops kubernetes-cli
+
+      - name: Setup Kubernetes Kind
+        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
+        with:
+          version: "v0.18.0"
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a' # v2
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f' # v2
+        with:
+          create_credentials_file: 'true' # Create a credentials file
+          # Set the workload identity provider and service account
+          workload_identity_provider: 'projects/970557914270/locations/global/workloadIdentityPools/raspbernetes-oidc-pool/providers/github-provider'
+          service_account: 'raspbernetes-oidc-sa@raspbernetes.iam.gserviceaccount.com'
+
+      - name: Run task flux
+        env:
+          CLUSTER: e2e
+          GITHUB_USER: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+          GITHUB_BRANCH: ${{ github.head_ref || env.DEFAULT_BRANCH }}
+          GITHUB_TOKEN: ${{ secrets.FLUX_FINE_GRAINED_E2E_PAT }}
+        run: |
+          task core:gpg CLUSTER="$CLUSTER"
+          task flux CLUSTER="$CLUSTER" GITHUB_USER="$GITHUB_USER" GITHUB_REPO="$GITHUB_REPO" GITHUB_BRANCH="$GITHUB_BRANCH"

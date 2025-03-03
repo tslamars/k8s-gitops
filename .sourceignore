@@ -1,0 +1,16 @@
+## Used by Fluxv2 Source Controller https://toolkit.fluxcd.io/components/source/gitrepositories/#excluding-files
+
+# Exclude all by default
+/*
+
+# Include the following explicit folder(s)
+!/kubernetes
+
+# Exclude sub-foler(s) and file(s)
+/kubernetes/clusters/**/infrastructure/
+/kubernetes/clusters/**/secrets/
+
+# Include sub-foler(s) and file(s)
+!/kubernetes/clusters/**/secrets/cluster-config.yaml
+!/kubernetes/clusters/**/secrets/cluster-secrets.enc.yaml
+!/kubernetes/clusters/**/secrets/sealed-secret-private-key.enc.yaml
