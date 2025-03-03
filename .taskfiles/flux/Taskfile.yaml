@@ -25,7 +25,7 @@ tasks:
     cmds:
       - cmd: |
           kubectl create namespace flux-system --dry-run=client -oyaml | kubectl apply -f -
-          sops --decrypt "kubernetes/clusters/{{.CLUSTER}}/secrets/flux-sops-age-secret.enc.yaml" | kubectl apply -f -
+          sops --decrypt "kubernetes/clusters/{{.CLUSTER}}/secrets/sops-age.enc.yaml" | kubectl apply -f -
           sops --decrypt "kubernetes/clusters/{{.CLUSTER}}/secrets/cluster-secrets.enc.yaml" | kubectl apply -f -
           kubectl apply -f kubernetes/clusters/{{.CLUSTER}}/secrets/cluster-config.yaml
         silent: false
