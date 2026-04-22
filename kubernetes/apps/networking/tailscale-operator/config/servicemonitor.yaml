@@ -1,0 +1,22 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tailscale-metrics
+spec:
+  jobLabel: ts_prom_job
+  namespaceSelector:
+    matchNames:
+      - networking
+  selector:
+    matchLabels:
+      tailscale.com/managed: "true"
+  endpoints:
+    - port: metrics
+      metricRelabelings:
+        - sourceLabels: [ts_proxy_parent_name]
+          targetLabel: tailscale_machine
+  targetLabels:
+    - ts_proxy_parent_name
+    - ts_proxy_parent_namespace
+    - ts_proxy_type

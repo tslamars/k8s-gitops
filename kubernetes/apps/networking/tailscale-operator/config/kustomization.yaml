@@ -5,4 +5,5 @@ resources:
   - ./app-connector.yaml
   - ./exit-node.yaml
   - ./proxyclass.yaml
+  - ./servicemonitor.yaml
 #  - ./subnet-router.yaml
