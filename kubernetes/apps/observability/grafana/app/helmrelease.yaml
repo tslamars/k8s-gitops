@@ -287,6 +287,11 @@ spec:
           gnetId: 11312
           revision: 9
           datasource: Prometheus
+        tailscale:
+          # renovate: depName="Tailscale / Machine"
+          gnetId: 24178
+          revision: 3
+          datasource: Prometheus
         volsync:
           # renovate: depName="VolSync Dashboard"
           gnetId: 21356

@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - ./app-connector.yaml
   - ./exit-node.yaml
+  - ./proxyclass.yaml
 #  - ./subnet-router.yaml
