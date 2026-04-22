@@ -6,3 +6,4 @@ metadata:
 spec:
   exitNode: true
   hostname: tslamars-egress
+  proxyClass: metrics
