@@ -1,73 +1,64 @@
 ---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app maintainerr
+  name: maintainerr
 spec:
-  interval: 30m
   chartRef:
     kind: OCIRepository
     name: app-template
-    namespace: flux-system
-  maxHistory: 2
-  install:
-    remediation:
-      retries: -1
-  upgrade:
-    cleanupOnFail: true
-    remediation:
-      retries: 3
-  uninstall:
-    keepHistory: false
+  interval: 15m
+  dependsOn: []
   values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        fsGroup: 100
+        fsGroupChangePolicy: OnRootMismatch
     controllers:
       maintainerr:
         annotations:
           reloader.stakater.com/auto: "true"
-
-        pod:
-          securityContext:
-            runAsUser: ${APP_UID}
-            runAsGroup: ${APP_GID}
-            fsGroup: ${APP_GID}
-            fsGroupChangePolicy: OnRootMismatch
-
         containers:
           app:
             image:
-              repository: ghcr.io/jorenn92/maintainerr
-              tag: 2.19.0@sha256:bee84707edaf589cda3d18b6813cbfe3a137b52786210c3a28190e10910c1240
+              repository: ghcr.io/maintainerr/maintainerr
+              tag:
+                3.8.0@sha256:014fcae5d4cfae96bfb239ebe9368751549e9516947435f4e07520add92cf19e
+            env:
+              TZ: America/Edmonton
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
             resources:
               requests:
                 cpu: 5m
                 memory: 128Mi
               limits:
-                memory: 2Gi
-
+                memory: 512Mi
+    persistence:
+      data:
+        existingClaim: "{{ .Release.Name }}"
+        globalMounts:
+        - path: /opt/data
+    route:
+      app:
+        hostnames: ["{{ .Release.Name }}.pipitonelabs.com"]
+        parentRefs:
+        - name: envoy-internal
+          namespace: networking
     service:
       app:
         ports:
           http:
-            port: &port 6246
-
-    route:
-      app:
-        hostnames: ["{{ .Release.Name }}.pipitonelabs.com"]
-        annotations:
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: System
-          gethomepage.dev/name: Maintainerr
-          gethomepage.dev/icon: mdi-wrench-clock
-        parentRefs:
-          - name: envoy-internal
-            namespace: networking
-        rules:
-          - backendRefs:
-              - identifier: app
-                port: *port
-
-    persistence:
-      data:
-        existingClaim: *app
-        globalMounts:
-          - path: /opt/data
+            port: 6246
