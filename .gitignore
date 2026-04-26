@@ -1,5 +1,6 @@
 .private/
 .task/
+.grok/
 *.crt
 *.key
 .decrypted~*
