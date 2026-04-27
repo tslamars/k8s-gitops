@@ -290,7 +290,7 @@ spec:
         tailscale:
           # renovate: depName="Tailscale / Machine"
           gnetId: 24178
-          revision: 3
+          revision: 4
           datasource: Prometheus
         volsync:
           # renovate: depName="VolSync Dashboard"
