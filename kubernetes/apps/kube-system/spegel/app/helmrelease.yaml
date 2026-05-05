@@ -23,7 +23,7 @@ spec:
   interval: 1h
   values:
     grafanaDashboard:
-      enabled: true
+      enabled: false
     serviceMonitor:
       enabled: true
     spegel:
