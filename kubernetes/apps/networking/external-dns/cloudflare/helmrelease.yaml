@@ -63,7 +63,7 @@ spec:
         serviceAccount:
           name: *app
     defaultPodOptions:
-      hostUsers: false
+      automountServiceAccountToken: true
       securityContext:
         runAsNonRoot: true
         runAsUser: 568
