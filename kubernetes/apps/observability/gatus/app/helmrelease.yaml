@@ -65,7 +65,7 @@ spec:
         serviceAccount:
           name: *app
     defaultPodOptions:
-      hostUsers: false
+      automountServiceAccountToken: true
     persistence:
       config:
         type: emptyDir
