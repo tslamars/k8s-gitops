@@ -37,7 +37,7 @@ spec:
           app:
             image:
               repository: docker.io/outlinewiki/outline
-              tag: 1.1.0@sha256:51db3e893d3eabdbf9092712c9c8ed5362efb20e4c1d35b941ccacaed1c0f010
+              tag: 1.7.1@sha256:361df7040e6f0d7abac768b99f40122197921626a7e69501aabb5fcb496fc1b4
             command: ["/bin/sh", "-c", "yarn db:migrate --env=production-ssl-disabled && yarn start --env=production-ssl-disabled"]
             env:
               DATABASE_URL:
