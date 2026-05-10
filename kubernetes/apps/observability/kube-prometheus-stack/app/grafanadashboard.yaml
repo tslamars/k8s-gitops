@@ -53,7 +53,7 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
-  url: https://grafana.com/api/dashboards/15758/revisions/42/download
+  url: https://grafana.com/api/dashboards/15758/revisions/46/download
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -67,7 +67,7 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
-  url: https://grafana.com/api/dashboards/15759/revisions/35/download
+  url: https://grafana.com/api/dashboards/15759/revisions/40/download
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -81,7 +81,7 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
-  url: https://grafana.com/api/dashboards/15760/revisions/38/download
+  url: https://grafana.com/api/dashboards/15760/revisions/39/download
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -100,7 +100,7 @@ spec:
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: node-exporter
+  name: node-exporter-full
 spec:
   allowCrossNamespaceImport: true
   instanceSelector:
@@ -109,7 +109,7 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
-  url: https://grafana.com/api/dashboards/1860/revisions/41/download
+  url: https://grafana.com/api/dashboards/1860/revisions/45/download
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
@@ -123,7 +123,7 @@ spec:
   datasources:
     - datasourceName: Prometheus
       inputName: DS_PROMETHEUS
-  url: https://grafana.com/api/dashboards/3662/revisions/2/download
+  url: https://grafana.com/api/dashboards/19105/revisions/9/download
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
