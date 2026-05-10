@@ -2,15 +2,12 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app grafana
+  name: &app grafana-operator
   namespace: &namespace observability
 spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  dependsOn:
-    - name: onepassword-store
-      namespace: external-secrets
   interval: 1h
   path: ./kubernetes/apps/observability/grafana/app
   prune: true
@@ -22,3 +19,39 @@ spec:
   targetNamespace: *namespace
   timeout: 5m
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: &app2 grafana
+  namespace: &namespace2 observability
+spec:
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: *app2
+  components:
+    - ../../../../components/volsync
+  dependsOn:
+    - name: grafana-operator
+      namespace: observability
+    - name: onepassword-store
+      namespace: external-secrets
+    - name: rook-ceph-cluster
+      namespace: rook-ceph
+  interval: 1h
+  path: ./kubernetes/apps/observability/grafana/instance
+  postBuild:
+    substitute:
+      APP: *app2
+      VOLSYNC_CAPACITY: 5Gi
+      VOLSYNC_PUID: "472"
+      VOLSYNC_PGID: "472"
+  prune: true
+  retryInterval: 2m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: *namespace2
+  timeout: 5m
+  wait: false
