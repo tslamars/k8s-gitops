@@ -5,6 +5,11 @@ kind: HTTPRoute
 metadata:
   name: authentik
   namespace: security
+  annotations:
+    gatus.home-operations.com/endpoint: |-
+      url: https://sso.pipitonelabs.com/-/health/ready/
+      conditions:
+        - "[STATUS] == 204"
 spec:
   hostnames: ["sso.pipitonelabs.com"]
   parentRefs:
