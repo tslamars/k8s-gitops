@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+# Single public route fronting the whole stack. The SPA + supabase-js see one
+# origin; paths fan out to the backends (mirrors Supabase's gateway layout).
+# external-dns auto-creates the Cloudflare record (envoy-external) for this host.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: tradeforge
+spec:
+  hostnames: ["tradeforge.pipitonelabs.com"]
+  parentRefs:
+    - name: envoy-external
+      namespace: networking
+  rules:
+    # PostgREST serves at root; strip the /rest/v1 prefix.
+    - matches:
+        - path: { type: PathPrefix, value: /rest/v1 }
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path: { type: ReplacePrefixMatch, replacePrefixMatch: / }
+      backendRefs:
+        - name: tradeforge-postgrest
+          port: 3000
+    # Realtime (Phoenix) serves the socket at /socket; map /realtime/v1 -> /socket.
+    # VALIDATE at cutover: confirm the WS connects (devtools -> WS).
+    - matches:
+        - path: { type: PathPrefix, value: /realtime/v1 }
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path: { type: ReplacePrefixMatch, replacePrefixMatch: /socket }
+      backendRefs:
+        - name: tradeforge-realtime
+          port: 4000
+    # Reporter handles any non-/health path as a trade POST; no rewrite needed.
+    - matches:
+        - path: { type: PathPrefix, value: /functions/v1/ticino-reporter }
+      backendRefs:
+        - name: tradeforge-reporter
+          port: 8000
+    # Everything else -> the SPA.
+    - matches:
+        - path: { type: PathPrefix, value: / }
+      backendRefs:
+        - name: tradeforge-web
+          port: 8080
