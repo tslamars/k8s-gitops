@@ -3,8 +3,21 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./cluster17.yaml
+  - ./externalsecret-tradeforge.yaml
   - ./objectstore-outline.yaml
   - ./objectstore-postgres17.yaml
+  - ./objectstore-tradeforge.yaml
   - ./outline.yaml
   - ./prometheusrule.yaml
   - ./scheduledbackup.yaml
+  - ./tradeforge.yaml
+configMapGenerator:
+  - name: tradeforge-bootstrap-sql
+    files:
+      - ./sql/00-supabase-compat.sql
+      - ./sql/0001_initial_schema.sql
+      - ./sql/0002_harden_rls_drop_public_read.sql
+      - ./sql/0003_reporter_rate_limit.sql
+      - ./sql/seed.sql
+generatorOptions:
+  disableNameSuffixHash: true
