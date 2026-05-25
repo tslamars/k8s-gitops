@@ -31,7 +31,7 @@ data:
         identifiers:
           name: tradeforge
         attrs:
-          client_type: confidential
+          client_type: public
           client_id: !Env TRADEFORGE_OIDC_CLIENT_ID
           client_secret: !Env TRADEFORGE_JWT_SECRET
           sub_mode: user_uuid
