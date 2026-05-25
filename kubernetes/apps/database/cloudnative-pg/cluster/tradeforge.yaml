@@ -5,7 +5,7 @@ kind: Cluster
 metadata:
   name: tradeforge-pg
 spec:
-  instances: 1 # dedicated cluster; bump to 2-3 later for HA
+  instances: 3 # HA across the 3 nodes, matching postgres17/outline
   imageName: ghcr.io/cloudnative-pg/postgresql:17
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
