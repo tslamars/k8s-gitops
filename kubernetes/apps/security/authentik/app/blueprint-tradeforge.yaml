@@ -46,8 +46,6 @@ data:
             - !KeyOf tradeforge-role
           redirect_uris:
             - matching_mode: strict
-              url: https://tradeforge-new.pipitonelabs.com/auth/callback
-            - matching_mode: strict
               url: https://tradeforge.pipitonelabs.com/auth/callback
       - id: tradeforge-app
         model: authentik_core.application
