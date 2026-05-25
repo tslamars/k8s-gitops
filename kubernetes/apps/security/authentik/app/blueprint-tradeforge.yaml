@@ -39,6 +39,10 @@ data:
           grant_types:
             - authorization_code
             - refresh_token
+          # Explicit null: omitting it would leave the prior value set.
+          # No signing key => Authentik signs tokens HS256 with client_secret,
+          # so PostgREST/Realtime validate them with the shared JWT_SECRET.
+          signing_key: null
           authorization_flow: !Find [authentik_flows.flow, [slug, provider-authorization-implicit-consent]]
           authentication_flow: !Find [authentik_flows.flow, [slug, authentication-flow]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, invalidation-flow]]
