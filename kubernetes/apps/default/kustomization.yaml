@@ -13,5 +13,4 @@ resources:
   - ./smtp-relay/ks.yaml
 #  - ./teslamate/ks.yaml
   - ./nginx/ks.yaml
-  - ./tradeforge/ks.yaml
   - ./wiki/ks.yaml
