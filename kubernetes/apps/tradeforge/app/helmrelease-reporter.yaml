@@ -60,6 +60,8 @@ spec:
               limits:
                 memory: 256Mi
     defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-login
       securityContext:
         runAsNonRoot: true
         seccompProfile:

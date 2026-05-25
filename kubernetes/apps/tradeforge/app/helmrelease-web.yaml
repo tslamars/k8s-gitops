@@ -60,6 +60,8 @@ spec:
               limits:
                 memory: 128Mi
     defaultPodOptions:
+      imagePullSecrets:
+        - name: ghcr-login
       securityContext:
         runAsNonRoot: true
         runAsUser: 101 # nginx-unprivileged
