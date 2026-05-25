@@ -29,6 +29,15 @@ spec:
         ensure: present
         login: true
         superuser: false
+        # CNPG manages these declaratively and overrides the shim. inherit:false
+        # keeps authenticator NOINHERIT (it must SET ROLE explicitly, never
+        # auto-inherit service_role's BYPASSRLS). inRoles re-establishes the
+        # membership CNPG would otherwise revoke, so PostgREST can switch roles.
+        inherit: false
+        inRoles:
+          - anon
+          - authenticated
+          - service_role
         passwordSecret:
           name: tradeforge-pg-authenticator
       - name: tradeforge_realtime # Realtime login role (created NOLOGIN by the shim)
