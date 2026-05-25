@@ -36,6 +36,10 @@ data:
           client_secret: !Env TRADEFORGE_JWT_SECRET
           sub_mode: user_uuid
           access_token_validity: hours=4
+          grant_types:
+            - authorization_code
+            - refresh_token
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, "authentik Self-signed Certificate"]]
           authorization_flow: !Find [authentik_flows.flow, [slug, provider-authorization-implicit-consent]]
           authentication_flow: !Find [authentik_flows.flow, [slug, authentication-flow]]
           invalidation_flow: !Find [authentik_flows.flow, [slug, invalidation-flow]]
