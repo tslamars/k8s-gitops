@@ -44,6 +44,11 @@ spec:
         ensure: present
         login: true
         replication: true
+        # supabase/realtime tenant migrations create event triggers and set
+        # superuser-only GUCs (e.g. log_min_messages); Supabase runs realtime as
+        # the superuser supabase_admin. This role is realtime-only; authenticator
+        # stays non-superuser so RLS is always enforced for app traffic.
+        superuser: true
         passwordSecret:
           name: tradeforge-pg-realtime
   bootstrap:
