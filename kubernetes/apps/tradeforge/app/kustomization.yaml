@@ -5,3 +5,6 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease-postgrest.yaml
   - ./helmrelease-realtime.yaml
+  - ./helmrelease-reporter.yaml
+  - ./helmrelease-web.yaml
+  - ./httproute.yaml
