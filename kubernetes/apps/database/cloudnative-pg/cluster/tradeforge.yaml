@@ -1,0 +1,71 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: tradeforge-pg
+spec:
+  instances: 1 # dedicated cluster; bump to 2-3 later for HA
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  storage:
+    size: 20Gi
+    storageClass: openebs-hostpath
+  # No superuserSecret: with enableSuperuserAccess CNPG auto-generates
+  # tradeforge-pg-superuser. `kubectl exec ... psql` connects via local socket.
+  enableSuperuserAccess: true
+  postgresql:
+    parameters:
+      max_connections: "200"
+      shared_buffers: 256MB
+      wal_level: logical # required for supabase/realtime logical replication
+      max_replication_slots: "10"
+      max_wal_senders: "10"
+      max_logical_replication_workers: "8"
+  managed:
+    roles:
+      - name: authenticator # PostgREST login role (created NOLOGIN by the shim)
+        ensure: present
+        login: true
+        superuser: false
+        passwordSecret:
+          name: tradeforge-pg-authenticator
+      - name: tradeforge_realtime # Realtime login role (created NOLOGIN by the shim)
+        ensure: present
+        login: true
+        replication: true
+        passwordSecret:
+          name: tradeforge-pg-realtime
+  bootstrap:
+    initdb:
+      database: tradeforge
+      owner: tradeforge # app owner role; PostgREST uses `authenticator`, not this
+      postInitApplicationSQLRefs:
+        configMapRefs:
+          - name: tradeforge-bootstrap-sql
+            key: 00-supabase-compat.sql
+          - name: tradeforge-bootstrap-sql
+            key: 0001_initial_schema.sql
+          - name: tradeforge-bootstrap-sql
+            key: 0002_harden_rls_drop_public_read.sql
+          - name: tradeforge-bootstrap-sql
+            key: 0003_reporter_rate_limit.sql
+          - name: tradeforge-bootstrap-sql
+            key: seed.sql
+  nodeMaintenanceWindow:
+    inProgress: false
+    reusePVC: true
+  resources:
+    requests:
+      cpu: 250m
+    limits:
+      memory: 2Gi
+  monitoring:
+    enablePodMonitor: true
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: garage-s3-tradeforge
+        serverName: tradeforge-pg-v1
