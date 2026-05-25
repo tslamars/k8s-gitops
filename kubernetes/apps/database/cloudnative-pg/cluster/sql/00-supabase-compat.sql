@@ -63,9 +63,13 @@ GRANT USAGE ON SCHEMA extensions TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role;
 
--- Realtime needs to create its _realtime schema + a logical replication slot --
+-- Realtime needs a logical replication slot + its two schemas. Supabase's
+-- platform pre-creates `_realtime` (control plane) and `realtime` (per-tenant
+-- data plane); recreate them here so a fresh bootstrap matches.
 GRANT ALL ON DATABASE tradeforge TO tradeforge_realtime;
 GRANT ALL ON SCHEMA public TO tradeforge_realtime;
+CREATE SCHEMA IF NOT EXISTS _realtime AUTHORIZATION tradeforge_realtime;
+CREATE SCHEMA IF NOT EXISTS realtime AUTHORIZATION tradeforge_realtime;
 
 -- Empty publication that 0001 ALTERs ... ADD TABLE into ----------------------
 DO $$
