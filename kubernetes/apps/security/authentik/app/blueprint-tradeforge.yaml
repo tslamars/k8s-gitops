@@ -58,3 +58,12 @@ data:
           provider: !KeyOf tradeforge-provider
           meta_launch_url: https://tradeforge.pipitonelabs.com/
           open_in_new_tab: true
+      # Restrict access to the "Self Hosted" group (your account must be a member)
+      - id: tradeforge-access
+        model: authentik_policies.policybinding
+        identifiers:
+          target: !KeyOf tradeforge-app
+          group: !Find [authentik_core.group, [name, "Self Hosted"]]
+          order: 0
+        attrs:
+          enabled: true
