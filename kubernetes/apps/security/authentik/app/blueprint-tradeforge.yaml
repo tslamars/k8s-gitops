@@ -51,6 +51,9 @@ data:
           redirect_uris:
             - matching_mode: strict
               url: https://tradeforge.pipitonelabs.com/auth/callback
+            - matching_mode: strict
+              url: https://tradeforge.pipitonelabs.com
+              redirect_uri_type: logout
       - id: tradeforge-app
         model: authentik_core.application
         identifiers:
