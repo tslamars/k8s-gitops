@@ -36,7 +36,10 @@ spec:
           app:
             image:
               repository: ghcr.io/pipitonelabs/tradeforge-selfhost-web
-              tag: latest # renovate-managed once first image is published
+              # Digest-pinned: Spegel serves the mutable `latest` tag from peer
+              # cache, so a bare `latest` won't pull new builds. Renovate bumps
+              # the digest on each new image.
+              tag: latest@sha256:193d0cbea607bb5a4e9287538d50252bfec9cf5c5194e9631793b72e6f5df712
             probes:
               liveness: &probe
                 enabled: true

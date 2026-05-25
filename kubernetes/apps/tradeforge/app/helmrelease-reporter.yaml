@@ -28,7 +28,10 @@ spec:
           app:
             image:
               repository: ghcr.io/pipitonelabs/tradeforge-selfhost-reporter
-              tag: latest # renovate-managed once first image is published
+              # Digest-pinned: Spegel serves the mutable `latest` tag from peer
+              # cache, so a bare `latest` won't pull new builds. Renovate bumps
+              # the digest on each new image.
+              tag: latest@sha256:a44cc61f062b5225b0c581d2c52f3a32476c1d70f6d05c9d02b3deab68fdee72
             env:
               # Reporter writes via PostgREST (internal) as the service role.
               SUPABASE_URL: http://tradeforge-postgrest.tradeforge.svc.cluster.local:3000
