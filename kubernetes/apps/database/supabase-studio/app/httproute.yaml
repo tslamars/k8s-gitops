@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+# Internal-only route — Studio holds the superuser password and JWT keys, so
+# it must not be reachable from envoy-external.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: supabase-studio
+spec:
+  hostnames: ["supabase.pipitonelabs.com"]
+  parentRefs:
+    - name: envoy-internal
+      namespace: networking
+  rules:
+    - backendRefs:
+        - name: supabase-studio
+          port: 3000
