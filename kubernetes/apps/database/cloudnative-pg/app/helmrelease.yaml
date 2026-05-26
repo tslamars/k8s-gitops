@@ -35,4 +35,8 @@ spec:
     monitoring:
       podMonitorEnabled: false
       grafanaDashboard:
-        create: true
+        # Disabled: chart-bundled dashboard is stale and queries only
+        # cnpg_collector_* metrics which return 0 for plugin-based backups.
+        # The GrafanaDashboard CR in grafanadashboard.yaml pulls the current
+        # upstream JSON which OR-falls-back to barman_cloud_cloudnative_pg_io_*.
+        create: false
