@@ -59,10 +59,13 @@ spec:
               # The folder is only read when Studio's local-functions CLI
               # workflow is used; an empty path is fine for our case.
               EDGE_FUNCTIONS_MANAGEMENT_FOLDER: /tmp/supabase-functions
+              # Studio sends this as the password in the connection override it
+              # passes to postgres-meta (Studio hard-codes user=supabase_admin),
+              # so it MUST match the password CNPG provisioned for that role.
               POSTGRES_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: tradeforge-pg-superuser
+                    name: tradeforge-pg-supabase-admin
                     key: password
             envFrom:
               # AUTH_JWT_SECRET, SUPABASE_ANON_KEY, SUPABASE_SERVICE_KEY

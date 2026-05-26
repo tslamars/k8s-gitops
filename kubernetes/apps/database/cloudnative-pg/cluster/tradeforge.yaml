@@ -40,6 +40,13 @@ spec:
           - service_role
         passwordSecret:
           name: tradeforge-pg-authenticator
+      - name: supabase_admin # Studio + postgres-meta superuser; Studio hard-codes
+        # this username when sending connection overrides to postgres-meta.
+        ensure: present
+        login: true
+        superuser: true
+        passwordSecret:
+          name: tradeforge-pg-supabase-admin
       - name: tradeforge_realtime # Realtime login role (created NOLOGIN by the shim)
         ensure: present
         login: true

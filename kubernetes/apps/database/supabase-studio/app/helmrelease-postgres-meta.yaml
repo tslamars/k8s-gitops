@@ -36,15 +36,18 @@ spec:
               PG_META_DB_PORT: "5432"
               PG_META_DB_NAME: tradeforge
               PG_META_DB_SSL_MODE: require
+              # Use the supabase_admin superuser so the default connection (used
+              # for postgres-meta's own startup checks) matches the per-request
+              # overrides Studio sends.
               PG_META_DB_USER:
                 valueFrom:
                   secretKeyRef:
-                    name: tradeforge-pg-superuser
+                    name: tradeforge-pg-supabase-admin
                     key: username
               PG_META_DB_PASSWORD:
                 valueFrom:
                   secretKeyRef:
-                    name: tradeforge-pg-superuser
+                    name: tradeforge-pg-supabase-admin
                     key: password
             probes:
               liveness: &probe
