@@ -53,6 +53,12 @@ spec:
               POSTGRES_DB: tradeforge
               NEXT_PUBLIC_ENABLE_LOGS: "false"
               NEXT_TELEMETRY_DISABLED: "1"
+              # Studio asserts these exist at module load; when the assert
+              # fails the API route crashes and every dependent feature
+              # (table editor, edge functions, etc.) returns malformed 500s.
+              # The folder is only read when Studio's local-functions CLI
+              # workflow is used; an empty path is fine for our case.
+              EDGE_FUNCTIONS_MANAGEMENT_FOLDER: /tmp/supabase-functions
               POSTGRES_PASSWORD:
                 valueFrom:
                   secretKeyRef:
