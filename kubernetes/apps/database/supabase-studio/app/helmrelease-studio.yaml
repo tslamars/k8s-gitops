@@ -32,18 +32,27 @@ spec:
           app:
             image:
               repository: supabase/studio
-              tag: 2026.05.25-sha-65c570e@sha256:c18b922ab1afdc4f25600f5c5bba701c302823013df5388927205a472ea95a10
+              # Pinned to the version used by supabase-community/supabase-kubernetes;
+              # newer (2026.05.x) builds added required envs like
+              # EDGE_FUNCTIONS_MANAGEMENT_FOLDER that crash routes when missing.
+              tag: 2026.04.27-sha-5f60601@sha256:d8306b216ccbddaae9adc8964eae39a32d6f79126fbc88c2fffb00185ed0bb12
             env:
               HOSTNAME: 0.0.0.0
               STUDIO_PG_META_URL: http://supabase-postgres-meta.database.svc.cluster.local:8080
               DEFAULT_ORGANIZATION_NAME: pipitonelabs
               DEFAULT_PROJECT_NAME: tradeforge
+              # SUPABASE_URL is what Studio uses for its in-app "API Docs" /
+              # auto-generated client snippets. SUPABASE_PUBLIC_URL is rendered
+              # into the browser. Both point at the existing tradeforge gateway,
+              # which already exposes /rest/v1 (PostgREST) and /realtime/v1.
               SUPABASE_URL: https://tradeforge.pipitonelabs.com
               SUPABASE_PUBLIC_URL: https://tradeforge.pipitonelabs.com
+              # Surfaced in Studio's Database settings panel.
+              POSTGRES_HOST: tradeforge-pg-rw.database.svc.cluster.local
+              POSTGRES_PORT: "5432"
+              POSTGRES_DB: tradeforge
               NEXT_PUBLIC_ENABLE_LOGS: "false"
               NEXT_TELEMETRY_DISABLED: "1"
-              # Studio surfaces this in the "Database settings" panel; the
-              # CNPG-managed superuser secret exposes it under `password`.
               POSTGRES_PASSWORD:
                 valueFrom:
                   secretKeyRef:
