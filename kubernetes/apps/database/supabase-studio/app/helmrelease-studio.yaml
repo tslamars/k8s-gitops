@@ -54,12 +54,13 @@ spec:
               - secretRef:
                   name: supabase-studio-secret
             probes:
+              # `/` 307-redirects to `/project/default`; k8s probes accept 3xx.
               liveness: &probe
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /api/profile
+                    path: /
                     port: &port 3000
                   initialDelaySeconds: 15
                   periodSeconds: 30
