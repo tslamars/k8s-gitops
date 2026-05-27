@@ -269,8 +269,12 @@ CREATE OR REPLACE VIEW public.ticino_session_configs_v WITH (security_invoker = 
 
 -- ============================================================================
 -- ROW LEVEL SECURITY
--- All per-user policies scope rows to the Clerk user id from the forwarded JWT:
---   (SELECT auth.jwt() ->> 'sub')
+-- All per-user policies scope rows to the Clerk user id via auth.uid().
+-- Use (SELECT auth.uid()) so PostgreSQL evaluates it once as an InitPlan
+-- rather than re-evaluating per row.
+-- For tables accessed via a FK join (trades, account_performance), use an
+-- IN subquery so the auth call stays at the outer query level and is not
+-- buried inside a correlated EXISTS.
 -- ============================================================================
 ALTER TABLE public.profiles               ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.prop_firms             ENABLE ROW LEVEL SECURITY;
@@ -285,13 +289,13 @@ ALTER TABLE public.ticino_session_configs ENABLE ROW LEVEL SECURITY;
 -- profiles --------------------------------------------------------------------
 DROP POLICY IF EXISTS profiles_select_own ON public.profiles;
 CREATE POLICY profiles_select_own ON public.profiles FOR SELECT TO authenticated
-    USING (id = (SELECT auth.jwt() ->> 'sub'));
+    USING (id = (SELECT auth.uid()));
 DROP POLICY IF EXISTS profiles_insert_own ON public.profiles;
 CREATE POLICY profiles_insert_own ON public.profiles FOR INSERT TO authenticated
-    WITH CHECK (id = (SELECT auth.jwt() ->> 'sub'));
+    WITH CHECK (id = (SELECT auth.uid()));
 DROP POLICY IF EXISTS profiles_update_own ON public.profiles;
 CREATE POLICY profiles_update_own ON public.profiles FOR UPDATE TO authenticated
-    USING (id = (SELECT auth.jwt() ->> 'sub')) WITH CHECK (id = (SELECT auth.jwt() ->> 'sub'));
+    USING (id = (SELECT auth.uid())) WITH CHECK (id = (SELECT auth.uid()));
 
 -- prop_firms (public reference data — readable by everyone) --------------------
 DROP POLICY IF EXISTS "Public can view prop firms" ON public.prop_firms;
@@ -301,28 +305,21 @@ CREATE POLICY "Public can view prop firms" ON public.prop_firms FOR SELECT
 -- accounts --------------------------------------------------------------------
 DROP POLICY IF EXISTS accounts_all_own ON public.accounts;
 CREATE POLICY accounts_all_own ON public.accounts FOR ALL TO authenticated
-    USING (user_id = (SELECT auth.jwt() ->> 'sub'))
-    WITH CHECK (user_id = (SELECT auth.jwt() ->> 'sub'));
+    USING (user_id = (SELECT auth.uid()))
+    WITH CHECK (user_id = (SELECT auth.uid()));
 
 -- trades (scoped through the owning account) -----------------------------------
+-- IN subquery keeps auth.uid() at the outer query level for InitPlan caching.
 DROP POLICY IF EXISTS trades_all_own ON public.trades;
 CREATE POLICY trades_all_own ON public.trades FOR ALL TO authenticated
-    USING (EXISTS (SELECT 1 FROM public.accounts
-                   WHERE accounts.id = trades.account_id
-                     AND accounts.user_id = (SELECT auth.jwt() ->> 'sub')))
-    WITH CHECK (EXISTS (SELECT 1 FROM public.accounts
-                        WHERE accounts.id = trades.account_id
-                          AND accounts.user_id = (SELECT auth.jwt() ->> 'sub')));
+    USING (account_id IN (SELECT id FROM public.accounts WHERE user_id = (SELECT auth.uid())))
+    WITH CHECK (account_id IN (SELECT id FROM public.accounts WHERE user_id = (SELECT auth.uid())));
 
 -- account_performance (scoped through the owning account) ----------------------
 DROP POLICY IF EXISTS account_performance_all_own ON public.account_performance;
 CREATE POLICY account_performance_all_own ON public.account_performance FOR ALL TO authenticated
-    USING (EXISTS (SELECT 1 FROM public.accounts
-                   WHERE accounts.id = account_performance.account_id
-                     AND accounts.user_id = (SELECT auth.jwt() ->> 'sub')))
-    WITH CHECK (EXISTS (SELECT 1 FROM public.accounts
-                        WHERE accounts.id = account_performance.account_id
-                          AND accounts.user_id = (SELECT auth.jwt() ->> 'sub')));
+    USING (account_id IN (SELECT id FROM public.accounts WHERE user_id = (SELECT auth.uid())))
+    WITH CHECK (account_id IN (SELECT id FROM public.accounts WHERE user_id = (SELECT auth.uid())));
 
 -- prop_firm_payouts (public reference data — readable by everyone) -------------
 DROP POLICY IF EXISTS prop_firm_payouts_read_all ON public.prop_firm_payouts;
@@ -332,20 +329,20 @@ CREATE POLICY prop_firm_payouts_read_all ON public.prop_firm_payouts FOR SELECT
 -- ticino_trades ---------------------------------------------------------------
 DROP POLICY IF EXISTS ticino_trades_all_own ON public.ticino_trades;
 CREATE POLICY ticino_trades_all_own ON public.ticino_trades FOR ALL TO authenticated
-    USING (user_id = (SELECT auth.jwt() ->> 'sub'))
-    WITH CHECK (user_id = (SELECT auth.jwt() ->> 'sub'));
+    USING (user_id = (SELECT auth.uid()))
+    WITH CHECK (user_id = (SELECT auth.uid()));
 
 -- ticino_user_secrets ---------------------------------------------------------
 DROP POLICY IF EXISTS ticino_user_secrets_all_own ON public.ticino_user_secrets;
 CREATE POLICY ticino_user_secrets_all_own ON public.ticino_user_secrets FOR ALL TO authenticated
-    USING (user_id = (SELECT auth.jwt() ->> 'sub'))
-    WITH CHECK (user_id = (SELECT auth.jwt() ->> 'sub'));
+    USING (user_id = (SELECT auth.uid()))
+    WITH CHECK (user_id = (SELECT auth.uid()));
 
 -- ticino_session_configs ------------------------------------------------------
 DROP POLICY IF EXISTS ticino_session_configs_all_own ON public.ticino_session_configs;
 CREATE POLICY ticino_session_configs_all_own ON public.ticino_session_configs FOR ALL TO authenticated
-    USING (user_id = (SELECT auth.jwt() ->> 'sub'))
-    WITH CHECK (user_id = (SELECT auth.jwt() ->> 'sub'));
+    USING (user_id = (SELECT auth.uid()))
+    WITH CHECK (user_id = (SELECT auth.uid()));
 
 -- ============================================================================
 -- DATA API GRANTS
