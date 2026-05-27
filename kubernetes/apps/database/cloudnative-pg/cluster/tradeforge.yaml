@@ -23,6 +23,7 @@ spec:
       max_replication_slots: "10"
       max_wal_senders: "10"
       max_logical_replication_workers: "8"
+      shared_preload_libraries: "pg_stat_statements"
   managed:
     roles:
       - name: authenticator # PostgREST login role (created NOLOGIN by the shim)
@@ -72,6 +73,8 @@ spec:
             key: 0002_harden_rls_drop_public_read.sql
           - name: tradeforge-bootstrap-sql
             key: 0003_reporter_rate_limit.sql
+          - name: tradeforge-bootstrap-sql
+            key: 0004_performance_indexes.sql
           - name: tradeforge-bootstrap-sql
             key: seed.sql
   nodeMaintenanceWindow:
