@@ -16,14 +16,21 @@
 CREATE SCHEMA IF NOT EXISTS extensions;   -- 0001 installs uuid-ossp/pgcrypto here
 CREATE SCHEMA IF NOT EXISTS auth;
 
--- auth.jwt()/uid()/role(): resolve the per-request claims PostgREST injects ---
-CREATE OR REPLACE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE AS $$
+-- auth.jwt()/uid()/role(): resolve the per-request claims PostgREST injects.
+-- SECURITY DEFINER so that the `authenticated` role can call these functions
+-- via RLS policy inlining — without it, PostgreSQL inlines the function body
+-- and then permission-checks the caller against the auth schema (which
+-- authenticated has no USAGE on), causing "permission denied for schema auth".
+CREATE OR REPLACE FUNCTION auth.jwt()
+RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
   SELECT coalesce(current_setting('request.jwt.claims', true), '{}')::jsonb;
 $$;
-CREATE OR REPLACE FUNCTION auth.uid() RETURNS text LANGUAGE sql STABLE AS $$
+CREATE OR REPLACE FUNCTION auth.uid()
+RETURNS text LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
   SELECT auth.jwt() ->> 'sub';
 $$;
-CREATE OR REPLACE FUNCTION auth.role() RETURNS text LANGUAGE sql STABLE AS $$
+CREATE OR REPLACE FUNCTION auth.role()
+RETURNS text LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
   SELECT auth.jwt() ->> 'role';
 $$;
 
