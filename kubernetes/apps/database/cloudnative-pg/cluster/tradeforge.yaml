@@ -23,7 +23,8 @@ spec:
       max_replication_slots: "10"
       max_wal_senders: "10"
       max_logical_replication_workers: "8"
-      shared_preload_libraries: "pg_stat_statements"
+  shared_preload_libraries:
+    - pg_stat_statements
   managed:
     roles:
       - name: authenticator # PostgREST login role (created NOLOGIN by the shim)
