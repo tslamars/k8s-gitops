@@ -71,7 +71,7 @@ spec:
       media:
         type: nfs
         server: unaspro.internal
-        path: /volume/030ba2d3-244f-4673-bf9a-befbcba695ef/.srv/.unifi-drive/media/.data/media
+        path: /volume/030ba2d3-244f-4673-bf9a-befbcba695ef/.srv/.unifi-drive/media/.data
         globalMounts:
           - readOnly: true
       tmpfs:
