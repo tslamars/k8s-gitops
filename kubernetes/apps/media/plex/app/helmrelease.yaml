@@ -60,7 +60,7 @@ spec:
         runAsGroup: 100
         fsGroup: 100
         fsGroupChangePolicy: OnRootMismatch
-        supplementalGroups: [44, 106]
+        supplementalGroups: [44, 106, 988]
     persistence:
       config:
         existingClaim: "{{ .Release.Name }}"
@@ -73,6 +73,7 @@ spec:
         server: unaspro.internal
         path: /volume/030ba2d3-244f-4673-bf9a-befbcba695ef/.srv/.unifi-drive/media/.data
         globalMounts:
+          - path: /media
           - readOnly: true
       tmpfs:
         type: emptyDir
