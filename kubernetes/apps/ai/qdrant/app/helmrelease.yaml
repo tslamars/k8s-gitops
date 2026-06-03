@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: qdrant/qdrant
-              tag: v1.18.1-unprivileged
+              tag: v1.18.2-unprivileged
             env:
               QDRANT__SERVICE__HTTP_PORT: &http-port 6333
               QDRANT__SERVICE__GRPC_PORT: &grpc-port 6334
