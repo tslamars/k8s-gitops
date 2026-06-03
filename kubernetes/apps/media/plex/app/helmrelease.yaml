@@ -75,8 +75,11 @@ spec:
         globalMounts:
           - path: /media
           - readOnly: true
-        mountOptions:
+        volumeSpec:
+          mountOptions:
             - nfsvers=3
+            - hard
+            - noatime
       tmpfs:
         type: emptyDir
         advancedMounts:
