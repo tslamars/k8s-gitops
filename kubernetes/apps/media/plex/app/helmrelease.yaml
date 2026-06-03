@@ -75,6 +75,8 @@ spec:
         globalMounts:
           - path: /media
           - readOnly: true
+        mountOptions:
+            - nfsvers=3
       tmpfs:
         type: emptyDir
         advancedMounts:
