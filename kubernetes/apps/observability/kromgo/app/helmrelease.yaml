@@ -72,7 +72,7 @@ spec:
       app:
         annotations:
           gatus.home-operations.com/endpoint: |-
-            url: https://{{ .Release.Name }}.pipitonelabs.com/talos_version
+            url: https://{{ .Release.Name }}.pipitonelabs.com/badges/talos_version
         hostnames:
           - "{{ .Release.Name }}.pipitonelabs.com"
         parentRefs:
