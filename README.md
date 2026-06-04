@@ -9,18 +9,18 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 
 <div align="center">
 
-[![Discord](https://img.shields.io/discord/673534664354430999?style=for-the-badge&label&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;&nbsp;
-[![Talos](https://kromgo.pipitonelabs.com/badges/talos_version)](https://talos.dev)&nbsp;&nbsp;
-[![Kubernetes](https://kromgo.pipitonelabs.com/badges/kubernetes_version)](https://kubernetes.io)&nbsp;&nbsp;
-[![Flux](https://kromgo.pipitonelabs.com/badges/flux_version)](https://fluxcd.io)&nbsp;&nbsp;
-[![Renovate](https://img.shields.io/github/actions/workflow/status/pipitonelabs/k8s-gitops/renovate.yaml?branch=main&label=&logo=renovatebot&style=for-the-badge&color=blue)](https://github.com/pipitonelabs/k8s-gitops/actions/workflows/renovate.yaml)
+[![Home-Internet](https://img.shields.io/uptimerobot/status/m798867477-4ff14f4880a35108ffb8d1d0?color=brightgreen&label=Home%20Internet&logo=ubiquiti&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
+[![Status-Page](https://img.shields.io/uptimerobot/status/m798867231-5ac0792736cd0d4802559b47?color=brightgreen&label=Status%20Page&logo=statuspage&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
 
 </div>
 
 <div align="center">
 
-[![Home-Internet](https://img.shields.io/uptimerobot/status/m798867477-4ff14f4880a35108ffb8d1d0?color=brightgreeen&label=Home%20Internet&style=for-the-badge&logo=ubiquiti&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
-[![Status-Page](https://img.shields.io/uptimerobot/status/m798867231-5ac0792736cd0d4802559b47?color=brightgreeen&label=Status%20Page&style=for-the-badge&logo=statuspage&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
+[![Discord](https://img.shields.io/discord/673534664354430999?label&logo=discord&logoColor=white&color=blue)](https://discord.gg/home-operations)&nbsp;&nbsp;
+[![Talos](https://kromgo.pipitonelabs.com/badges/talos_version)](https://talos.dev)&nbsp;&nbsp;
+[![Kubernetes](https://kromgo.pipitonelabs.com/badges/kubernetes_version)](https://kubernetes.io)&nbsp;&nbsp;
+[![Flux](https://kromgo.pipitonelabs.com/badges/flux_version)](https://fluxcd.io)&nbsp;&nbsp;
+[![Renovate](https://img.shields.io/github/actions/workflow/status/pipitonelabs/k8s-gitops/renovate.yaml?branch=main&label&logo=renovate&color=blue)](https://github.com/pipitonelabs/k8s-gitops/actions/workflows/renovate.yaml)
 
 </div>
 
