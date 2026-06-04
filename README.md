@@ -9,8 +9,8 @@ _... managed with Flux, Renovate, and GitHub Actions_ <img src="https://fonts.gs
 
 <div align="center">
 
-[![Home-Internet](https://img.shields.io/uptimerobot/status/m798867477-4ff14f4880a35108ffb8d1d0?color=brightgreen&label=Home%20Internet&style=flat&logo=ubiquiti&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
-[![Status-Page](https://img.shields.io/uptimerobot/status/m798867231-5ac0792736cd0d4802559b47?color=brightgreen&label=Status%20Page&style=flat&logo=statuspage&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
+[![Home-Internet](https://img.shields.io/uptimerobot/status/m798867477-4ff14f4880a35108ffb8d1d0?color=brightgreen&label=Home%20Internet&logo=ubiquiti&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
+[![Status-Page](https://img.shields.io/uptimerobot/status/m798867231-5ac0792736cd0d4802559b47?color=brightgreen&label=Status%20Page&logo=statuspage&logoColor=white)](https://status.pipitonelabs.com)&nbsp;&nbsp;
 
 </div>
 
