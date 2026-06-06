@@ -32,7 +32,7 @@ spec:
 
     controllers:
       smtp-relay:
-        replicas: 3
+        replicas: 1
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -93,6 +93,6 @@ spec:
           - port: metrics
             scheme: http
             path: /metrics
-            interval: 1m
+            interval: 5m
             scrapeTimeout: 10s
 

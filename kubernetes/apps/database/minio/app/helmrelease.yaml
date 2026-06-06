@@ -48,7 +48,7 @@ spec:
               MINIO_API_CORS_EXPOSE_HEADERS: "ETag"
               MINIO_API_CORS_ALLOW_CREDENTIALS: "true"
               MINIO_AUDIT_LOG: "on"
-              MINIO_LOG_LEVEL: "debug"
+              MINIO_LOG_LEVEL: "info"
 
             envFrom:
               - secretRef:
@@ -92,7 +92,7 @@ spec:
           - port: s3
             scheme: http
             path: /minio/v2/metrics/cluster
-            interval: 1m
+            interval: 5m
             scrapeTimeout: 10s
 
     route:

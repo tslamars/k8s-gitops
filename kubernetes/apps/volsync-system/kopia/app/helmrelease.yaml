@@ -22,7 +22,7 @@ spec:
             env:
               KOPIA_WEB_ENABLED: true
               KOPIA_WEB_PORT: &port 80
-              KOPIA_LOG_LEVEL: debug
+              KOPIA_LOG_LEVEL: info
               KOPIA_LOG_DIR: /config/logs
               TZ: America/New_York
             envFrom:
