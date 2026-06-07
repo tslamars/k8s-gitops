@@ -31,7 +31,7 @@ spec:
               # Digest-pinned: Spegel serves the mutable `latest` tag from peer
               # cache, so a bare `latest` won't pull new builds. Renovate bumps
               # the digest on each new image.
-              tag: latest@sha256:39ddb9720d648693e3f5d065b0ef4fdb93474859542c3d953d1cc520412aec97
+              tag: latest@sha256:535725bea45ca95a0e31b5577fe4f438af3a09ca6fa1d89966afd3a7e2eceef0
             env:
               # Reporter writes via PostgREST (internal) as the service role.
               SUPABASE_URL: http://tradeforge-postgrest.tradeforge.svc.cluster.local:3000
