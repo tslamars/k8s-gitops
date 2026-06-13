@@ -5,6 +5,7 @@ kind: Kustomization
 namespace: security
 resources:
   - ./blueprint-tradeforge.yaml
+  - ./blueprint-budget.yaml
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./httproute.yaml

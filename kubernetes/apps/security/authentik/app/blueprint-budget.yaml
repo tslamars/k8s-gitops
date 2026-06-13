@@ -1,0 +1,64 @@
+---
+# Authentik blueprint for budget-app OIDC, mounted into /blueprints by the chart
+# (see helmrelease.yaml: blueprints.configMaps). Authentik discovers + applies it.
+#
+# budget-app is a STANDARD confidential OIDC client (Auth.js / next-auth v5,
+# provider "authentik"). Unlike tradeforge (HS256, custom PostgREST role claim),
+# this provider signs tokens RS256 with the Authentik self-signed key and uses the
+# default openid/email/profile scopes. client_id/secret come from env
+# (BUDGET_OIDC_*), provided via the authentik-secret ExternalSecret (1Password item
+# "budget"). Auth.js callback: https://budget.pipitonelabs.com/api/auth/callback/authentik
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authentik-blueprint-budget
+data:
+  budget.yaml: |
+    version: 1
+    metadata:
+      name: budget-oidc
+    entries:
+      - id: budget-provider
+        model: authentik_providers_oauth2.oauth2provider
+        identifiers:
+          name: budget
+        attrs:
+          client_type: confidential
+          client_id: !Env BUDGET_OIDC_CLIENT_ID
+          client_secret: !Env BUDGET_OIDC_CLIENT_SECRET
+          sub_mode: user_uuid
+          access_token_validity: hours=4
+          grant_types:
+            - authorization_code
+            - refresh_token
+          # RS256: Authentik signs id/access tokens with the self-signed keypair;
+          # Auth.js validates via the provider's JWKS discovery endpoint.
+          signing_key: !Find [authentik_crypto.certificatekeypair, [name, authentik Self-signed Certificate]]
+          authorization_flow: !Find [authentik_flows.flow, [slug, provider-authorization-implicit-consent]]
+          authentication_flow: !Find [authentik_flows.flow, [slug, authentication-flow]]
+          invalidation_flow: !Find [authentik_flows.flow, [slug, invalidation-flow]]
+          property_mappings:
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-openid]]
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-email]]
+            - !Find [authentik_providers_oauth2.scopemapping, [managed, goauthentik.io/providers/oauth2/scope-profile]]
+          redirect_uris:
+            - matching_mode: strict
+              url: https://budget.pipitonelabs.com/api/auth/callback/authentik
+      - id: budget-app
+        model: authentik_core.application
+        identifiers:
+          slug: budget
+        attrs:
+          name: Budget
+          provider: !KeyOf budget-provider
+          meta_launch_url: https://budget.pipitonelabs.com/
+          open_in_new_tab: true
+      # Restrict access to the "Self Hosted" group (your account must be a member)
+      - id: budget-access
+        model: authentik_policies.policybinding
+        identifiers:
+          target: !KeyOf budget-app
+          group: !Find [authentik_core.group, [name, "Self Hosted"]]
+          order: 0
+        attrs:
+          enabled: true
