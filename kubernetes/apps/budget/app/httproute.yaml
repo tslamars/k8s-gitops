@@ -1,0 +1,18 @@
+---
+# yaml-language-server: $schema=https://kube-schemas.pages.dev/gateway.networking.k8s.io/httproute_v1.json
+# Internal-only route — budget-app is household-use only and must not be
+# reachable from the public internet. TLS via the shared *.pipitonelabs.com
+# wildcard cert on envoy-internal; external-dns auto-creates the internal DNS record.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: budget
+spec:
+  hostnames: ["budget.pipitonelabs.com"]
+  parentRefs:
+    - name: envoy-internal
+      namespace: networking
+  rules:
+    - backendRefs:
+        - name: budget-app
+          port: 3000
