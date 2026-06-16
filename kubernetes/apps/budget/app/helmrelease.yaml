@@ -47,7 +47,7 @@ spec:
               repository: ghcr.io/pipitonelabs/budget-app
               # Digest-pinned: Renovate bumps this on each new migrate-latest push.
               # Placeholder digest — non-deployable until first real image is pushed.
-              tag: migrate-latest@sha256:8153c915fecb7f40d0a870589daccee2766429b11ad6ff714c6d854bdd1f658c
+              tag: migrate-latest@sha256:e43ee80c75bf54a1f35724077942fcef9273816d848b64a1f96d41de3ffa7b89
             env:
               DATABASE_URL:
                 valueFrom:
@@ -60,7 +60,7 @@ spec:
               repository: ghcr.io/pipitonelabs/budget-app
               # Digest-pinned: Renovate bumps this on each new latest push.
               # Placeholder digest — non-deployable until first real image is pushed.
-              tag: latest@sha256:d538cc947633a5ec0fff91386d6b658f140d68cf3daa1dacbc81823d7b5e87a7
+              tag: latest@sha256:4a85755efe41fbf6e4e83dbcafecd31c2304c05b25f3f5d810993baafad76952
             env:
               DATABASE_URL:
                 valueFrom:
