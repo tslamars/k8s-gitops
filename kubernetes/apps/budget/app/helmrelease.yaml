@@ -60,7 +60,7 @@ spec:
               repository: ghcr.io/pipitonelabs/budget-app
               # Digest-pinned: Renovate bumps this on each new latest push.
               # Placeholder digest — non-deployable until first real image is pushed.
-              tag: latest@sha256:53618967e0071eea434af9ef81384725d8f7d657c4b78b7991e46c2677200bf9
+              tag: latest@sha256:a1b718ac3b5866bed96829b019f68a1fa6154224919dbbbfa33248d2758a0e02
             env:
               DATABASE_URL:
                 valueFrom:
