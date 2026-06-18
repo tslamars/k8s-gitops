@@ -32,34 +32,34 @@ spec:
             args:
               - |
                 CONNSTR="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD sslmode=require"
-                # id has no DB-level default (Ecto-managed); supply it explicitly.
-                # tenants.id is bigint; extensions.id is uuid (gen_random_uuid() is
-                # builtin in PG13+ so no schema prefix needed).
+                # Both id columns are uuid NOT NULL with no DB default (Ecto-managed).
+                # inserted_at/updated_at are also NOT NULL with no default.
                 psql "$CONNSTR" \
-                  -c "INSERT INTO _realtime.tenants (id, name, external_id, jwt_secret)
-                      SELECT COALESCE((SELECT MAX(id) FROM _realtime.tenants), 0) + 1,
-                             'tradeforge', 'tradeforge', '$API_JWT_SECRET'
-                      WHERE NOT EXISTS (
-                        SELECT 1 FROM _realtime.tenants WHERE external_id = 'tradeforge'
-                      );" \
-                  -c "INSERT INTO _realtime.extensions (id, type, settings, tenant_external_id)
-                      SELECT gen_random_uuid(), 'postgres_cdc_rls',
-                             jsonb_build_object(
-                               'region',      'us-east-1',
-                               'db_host',     '$DB_HOST',
-                               'db_name',     '$DB_NAME',
-                               'db_user',     '$DB_USER',
-                               'db_password', '$DB_PASSWORD',
-                               'db_port',     '$DB_PORT',
-                               'ip_version',  'IPv4',
-                               'publication', 'supabase_realtime',
-                               'slot',        'supabase_realtime_replication_slot'
-                             ),
-                             'tradeforge'
-                      WHERE NOT EXISTS (
-                        SELECT 1 FROM _realtime.extensions
-                        WHERE tenant_external_id = 'tradeforge' AND type = 'postgres_cdc_rls'
-                      );"
+                  -c "INSERT INTO _realtime.tenants
+                        (id, name, external_id, jwt_secret, inserted_at, updated_at)
+                      VALUES
+                        (gen_random_uuid(), 'tradeforge', 'tradeforge', '$API_JWT_SECRET', NOW(), NOW())
+                      ON CONFLICT (external_id) DO NOTHING;" \
+                  -c "INSERT INTO _realtime.extensions
+                        (id, type, settings, tenant_external_id, inserted_at, updated_at)
+                      VALUES (
+                        gen_random_uuid(),
+                        'postgres_cdc_rls',
+                        jsonb_build_object(
+                          'region',      'us-east-1',
+                          'db_host',     '$DB_HOST',
+                          'db_name',     '$DB_NAME',
+                          'db_user',     '$DB_USER',
+                          'db_password', '$DB_PASSWORD',
+                          'db_port',     '$DB_PORT',
+                          'ip_version',  'IPv4',
+                          'publication', 'supabase_realtime',
+                          'slot',        'supabase_realtime_replication_slot'
+                        ),
+                        'tradeforge',
+                        NOW(), NOW()
+                      )
+                      ON CONFLICT (tenant_external_id, type) DO NOTHING;"
             env:
               DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
               DB_PORT: "5432"
