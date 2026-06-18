@@ -33,15 +33,6 @@ spec:
             args:
               - |
                 CONNSTR="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD sslmode=require"
-                # Both id columns are uuid NOT NULL with no DB default (Ecto-managed).
-                # inserted_at/updated_at are also NOT NULL with no default.
-                # Always remove the realtime-dev seed tenant so SEED_SELF_HOST
-                # re-creates it with the current DB_ADMIN_PASSWORD on startup.
-                # It was seeded with stale/empty credentials on the first v2.109.0
-                # boot (before DB_ADMIN_PASSWORD was provisioned), so without this
-                # the Janitor always fails auth as supabase_realtime_admin.
-                psql "$CONNSTR" \
-                  -c "DELETE FROM _realtime.tenants WHERE external_id = 'realtime-dev';"
                 psql "$CONNSTR" \
                   -c "INSERT INTO _realtime.tenants
                         (id, name, external_id, jwt_secret, inserted_at, updated_at)
@@ -80,7 +71,7 @@ spec:
           app:
             image:
               repository: docker.io/supabase/realtime
-              tag: v2.109.0
+              tag: v2.108.0
             env:
               PORT: "4000"
               DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
@@ -93,7 +84,7 @@ spec:
               DNS_NODES: "''"
               RLIMIT_NOFILE: "10000"
               SEED_SELF_HOST: "true" # auto-provisions the realtime-dev tenant
-              RUN_JANITOR: "false"
+              RUN_JANITOR: "true"
               DISABLE_HEALTHCHECK_LOGGING: "true"
               # Realtime reuses the shared HS256 secret for the metrics endpoint
               METRICS_JWT_SECRET:
