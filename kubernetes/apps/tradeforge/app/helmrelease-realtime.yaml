@@ -32,12 +32,18 @@ spec:
             args:
               - |
                 CONNSTR="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD sslmode=require"
+                # id has no DB-level default (Ecto-managed); supply it explicitly.
+                # tenants.id is bigint; extensions.id is uuid (gen_random_uuid() is
+                # builtin in PG13+ so no schema prefix needed).
                 psql "$CONNSTR" \
-                  -c "INSERT INTO _realtime.tenants (name, external_id, jwt_secret)
-                      VALUES ('tradeforge', 'tradeforge', '$API_JWT_SECRET')
-                      ON CONFLICT (external_id) DO NOTHING;" \
-                  -c "INSERT INTO _realtime.extensions (type, settings, tenant_external_id)
-                      SELECT 'postgres_cdc_rls',
+                  -c "INSERT INTO _realtime.tenants (id, name, external_id, jwt_secret)
+                      SELECT COALESCE((SELECT MAX(id) FROM _realtime.tenants), 0) + 1,
+                             'tradeforge', 'tradeforge', '$API_JWT_SECRET'
+                      WHERE NOT EXISTS (
+                        SELECT 1 FROM _realtime.tenants WHERE external_id = 'tradeforge'
+                      );" \
+                  -c "INSERT INTO _realtime.extensions (id, type, settings, tenant_external_id)
+                      SELECT gen_random_uuid(), 'postgres_cdc_rls',
                              jsonb_build_object(
                                'region',      'us-east-1',
                                'db_host',     '$DB_HOST',
