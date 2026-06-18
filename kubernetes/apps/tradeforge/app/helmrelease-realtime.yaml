@@ -23,6 +23,45 @@ spec:
       realtime:
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          seed-tenant:
+            image:
+              repository: docker.io/postgres
+              tag: "17-alpine"
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                CONNSTR="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD sslmode=require"
+                psql "$CONNSTR" \
+                  -c "INSERT INTO _realtime.tenants (name, external_id, jwt_secret)
+                      VALUES ('tradeforge', 'tradeforge', '$API_JWT_SECRET')
+                      ON CONFLICT (external_id) DO NOTHING;" \
+                  -c "INSERT INTO _realtime.extensions (type, settings, tenant_external_id)
+                      SELECT 'postgres_cdc_rls',
+                             jsonb_build_object(
+                               'region',      'us-east-1',
+                               'db_host',     '$DB_HOST',
+                               'db_name',     '$DB_NAME',
+                               'db_user',     '$DB_USER',
+                               'db_password', '$DB_PASSWORD',
+                               'db_port',     '$DB_PORT',
+                               'ip_version',  'IPv4',
+                               'publication', 'supabase_realtime',
+                               'slot',        'supabase_realtime_replication_slot'
+                             ),
+                             'tradeforge'
+                      WHERE NOT EXISTS (
+                        SELECT 1 FROM _realtime.extensions
+                        WHERE tenant_external_id = 'tradeforge' AND type = 'postgres_cdc_rls'
+                      );"
+            env:
+              DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: tradeforge
+              DB_USER: tradeforge_realtime
+            envFrom:
+              - secretRef:
+                  name: tradeforge-secret
         containers:
           app:
             image:
