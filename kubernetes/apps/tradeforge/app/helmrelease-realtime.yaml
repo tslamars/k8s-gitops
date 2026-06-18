@@ -72,9 +72,7 @@ spec:
           app:
             image:
               repository: docker.io/supabase/realtime
-              # v2.109.0 requires supabase_realtime_admin DB role (not yet provisioned).
-              # Pin to v2.108.0 until that role is added to CNPG managed.roles.
-              tag: v2.108.0
+              tag: v2.109.0
             env:
               PORT: "4000"
               DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
@@ -87,6 +85,8 @@ spec:
               DNS_NODES: "''"
               RLIMIT_NOFILE: "10000"
               SEED_SELF_HOST: "true" # auto-provisions the realtime-dev tenant
+              DB_ADMIN_USER: supabase_realtime_admin
+              # DB_ADMIN_PASSWORD is injected from tradeforge-secret via envFrom
               RUN_JANITOR: "true"
               DISABLE_HEALTHCHECK_LOGGING: "true"
               # Realtime reuses the shared HS256 secret for the metrics endpoint
