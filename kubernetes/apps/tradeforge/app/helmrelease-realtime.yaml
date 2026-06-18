@@ -27,7 +27,7 @@ spec:
           seed-tenant:
             image:
               repository: docker.io/postgres
-              tag: "17-alpine"
+              tag: "18-alpine"
             command: ["/bin/sh", "-c"]
             args:
               - |
