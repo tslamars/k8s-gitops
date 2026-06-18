@@ -60,6 +60,12 @@ spec:
         superuser: true
         passwordSecret:
           name: tradeforge-pg-realtime
+      - name: supabase_realtime_admin # v2.109.0+: Janitor admin role
+        ensure: present
+        login: true
+        superuser: true
+        passwordSecret:
+          name: tradeforge-pg-realtime-admin
   bootstrap:
     initdb:
       database: tradeforge

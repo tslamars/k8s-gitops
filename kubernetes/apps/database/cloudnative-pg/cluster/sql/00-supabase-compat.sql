@@ -58,6 +58,12 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'tradeforge_realtime') THEN
     CREATE ROLE tradeforge_realtime NOLOGIN REPLICATION;
   END IF;
+  -- v2.109.0+: Janitor connects as supabase_realtime_admin. CNPG managed.roles
+  -- grants LOGIN and sets the password; the shim only needs to ensure the role
+  -- exists so migrations that reference it don't fail on a cold bootstrap.
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'supabase_realtime_admin') THEN
+    CREATE ROLE supabase_realtime_admin NOLOGIN;
+  END IF;
 END $$;
 
 GRANT anon, authenticated, service_role TO authenticator;
