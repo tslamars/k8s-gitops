@@ -71,7 +71,7 @@ spec:
           app:
             image:
               repository: docker.io/supabase/realtime
-              tag: v2.108.0
+              tag: v2.108.0 # renovate: depName=supabase/realtime versioning=docker allowedVersions=<2.109.0
             env:
               PORT: "4000"
               DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
