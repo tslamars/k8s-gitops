@@ -93,9 +93,7 @@ spec:
               DNS_NODES: "''"
               RLIMIT_NOFILE: "10000"
               SEED_SELF_HOST: "true" # auto-provisions the realtime-dev tenant
-              DB_ADMIN_USER: supabase_realtime_admin
-              # DB_ADMIN_PASSWORD is injected from tradeforge-secret via envFrom
-              RUN_JANITOR: "true"
+              RUN_JANITOR: "false"
               DISABLE_HEALTHCHECK_LOGGING: "true"
               # Realtime reuses the shared HS256 secret for the metrics endpoint
               METRICS_JWT_SECRET:
