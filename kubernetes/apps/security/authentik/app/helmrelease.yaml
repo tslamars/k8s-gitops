@@ -81,6 +81,10 @@ spec:
       autoscaling:
         enabled: true
         minReplicas: 1
+      livenessProbe:
+        timeoutSeconds: 10
+      readinessProbe:
+        timeoutSeconds: 10
       resources:
         requests:
           cpu: 200m
