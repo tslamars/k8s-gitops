@@ -24,66 +24,39 @@ spec:
       realtime:
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          seed-tenant:
-            image:
-              repository: docker.io/postgres
-              tag: "17-alpine"
-            command: ["/bin/sh", "-c"]
-            args:
-              - |
-                CONNSTR="host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER password=$DB_PASSWORD sslmode=require"
-                psql "$CONNSTR" \
-                  -c "INSERT INTO _realtime.tenants
-                        (id, name, external_id, jwt_secret, inserted_at, updated_at)
-                      VALUES
-                        (gen_random_uuid(), 'tradeforge', 'tradeforge', '$API_JWT_SECRET', NOW(), NOW())
-                      ON CONFLICT (external_id) DO NOTHING;" \
-                  -c "INSERT INTO _realtime.extensions
-                        (id, type, settings, tenant_external_id, inserted_at, updated_at)
-                      VALUES (
-                        gen_random_uuid(),
-                        'postgres_cdc_rls',
-                        jsonb_build_object(
-                          'region',      'us-east-1',
-                          'db_host',     '$DB_HOST',
-                          'db_name',     '$DB_NAME',
-                          'db_user',     '$DB_USER',
-                          'db_password', '$DB_PASSWORD',
-                          'db_port',     '$DB_PORT',
-                          'ip_version',  'IPv4',
-                          'publication', 'supabase_realtime',
-                          'slot',        'supabase_realtime_replication_slot'
-                        ),
-                        'tradeforge',
-                        NOW(), NOW()
-                      )
-                      ON CONFLICT (tenant_external_id, type) DO NOTHING;"
-            env:
-              DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
-              DB_PORT: "5432"
-              DB_NAME: tradeforge
-              DB_USER: tradeforge_realtime
-            envFrom:
-              - secretRef:
-                  name: tradeforge-secret
         containers:
           app:
             image:
               repository: docker.io/supabase/realtime
-              tag: v2.108.0 # renovate: depName=supabase/realtime versioning=docker allowedVersions=<2.109.0
+              tag: v2.109.0
             env:
               PORT: "4000"
               DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: tradeforge
+              # v2.109.0+ (PR #1954) splits DB credentials: migrations connect as
+              # DB_USER/DB_PASSWORD, while the Janitor and every per-tenant runtime
+              # connection use DB_USER_REALTIME/DB_PASS_REALTIME (default user
+              # `supabase_realtime_admin`). We point both at tradeforge_realtime —
+              # already a superuser — so there is a single credential to manage.
               DB_USER: tradeforge_realtime
+              DB_USER_REALTIME: tradeforge_realtime
+              # DB_PASSWORD and DB_PASS_REALTIME are injected from tradeforge-secret
+              # via envFrom; both resolve to tradeforge_realtime's password.
               DB_AFTER_CONNECT_QUERY: "SET search_path TO _realtime"
               APP_NAME: realtime
               ERL_AFLAGS: -proto_dist inet_tcp
               DNS_NODES: "''"
               RLIMIT_NOFILE: "10000"
-              SEED_SELF_HOST: "true" # auto-provisions the realtime-dev tenant
+              # SEED_SELF_HOST provisions one tenant on every boot. Naming it
+              # `tradeforge` makes Realtime create OUR tenant itself, with the DB
+              # credentials + jwt_secret correctly encrypted (DB_ENC_KEY) and the
+              # CDC publication/slot_name defaults applied. This replaces the old
+              # init container, which wrote those fields in plaintext (Realtime
+              # then failed to decrypt jwt_secret -> ErrorConnectingToWebsocket
+              # signature_error).
+              SEED_SELF_HOST: "true"
+              SELF_HOST_TENANT_NAME: tradeforge
               RUN_JANITOR: "true"
               DISABLE_HEALTHCHECK_LOGGING: "true"
               # Realtime reuses the shared HS256 secret for the metrics endpoint
@@ -93,7 +66,8 @@ spec:
                     name: tradeforge-secret
                     key: API_JWT_SECRET
             envFrom:
-              # DB_PASSWORD, API_JWT_SECRET, SECRET_KEY_BASE, DB_ENC_KEY (others ignored)
+              # DB_PASSWORD, DB_PASS_REALTIME, API_JWT_SECRET, SECRET_KEY_BASE,
+              # DB_ENC_KEY (others ignored)
               - secretRef:
                   name: tradeforge-secret
             probes:
