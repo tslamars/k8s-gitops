@@ -28,6 +28,20 @@ spec:
               limits:
                 memory: 128Mi
             restartPolicy: Always
+          init-config:
+            image:
+              repository: docker.io/library/busybox
+              tag: "1.37.0"
+            command: ["touch", "/config/gatus-sidecar.yaml"]
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 16Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
         containers:
           app:
             image:
