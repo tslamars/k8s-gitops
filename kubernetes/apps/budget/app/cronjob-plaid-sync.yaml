@@ -1,0 +1,52 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: budget-plaid-sync
+  namespace: budget
+spec:
+  schedule: "0 */4 * * *"   # every 4 hours
+  concurrencyPolicy: Forbid  # skip if previous run is still going
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: ghcr-login
+          containers:
+            - name: sync
+              image: curlimages/curl:8.11.0
+              command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  echo "[plaid-sync] starting at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                  RESPONSE=$(curl -sf \
+                    -X POST \
+                    -H "Content-Type: application/json" \
+                    -H "x-cron-secret: ${PLAID_CRON_SECRET}" \
+                    http://budget-app.budget.svc.cluster.local:3000/api/internal/plaid/sync-all)
+                  echo "[plaid-sync] response: ${RESPONSE}"
+                  echo "[plaid-sync] done at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              env:
+                - name: PLAID_CRON_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: budget-app-secret
+                      key: PLAID_CRON_SECRET
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  memory: 32Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]

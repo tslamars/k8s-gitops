@@ -8,3 +8,4 @@ resources:
   - ./externalsecret-ghcr.yaml
   - ./helmrelease.yaml
   - ./httproute.yaml
+  - ./cronjob-plaid-sync.yaml
