@@ -19,7 +19,7 @@ spec:
             - name: ghcr-login
           containers:
             - name: sync
-              image: curlimages/curl:8.11.0
+              image: curlimages/curl:8.20.0
               command:
                 - sh
                 - -c
