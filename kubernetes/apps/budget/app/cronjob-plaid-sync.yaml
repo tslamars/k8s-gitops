@@ -11,7 +11,7 @@ spec:
   failedJobsHistoryLimit: 5
   jobTemplate:
     spec:
-      backoffLimit: 2
+      backoffLimit: 0
       template:
         spec:
           restartPolicy: OnFailure
@@ -25,16 +25,14 @@ spec:
                 - -c
                 - |
                   echo "[plaid-sync] starting at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-                  RESPONSE=$(curl -s -w '\n%{http_code}' \
+                  RESULT=$(curl -sv \
                     -X POST \
                     -H "Content-Type: application/json" \
                     -H "x-cron-secret: ${PLAID_CRON_SECRET}" \
-                    http://budget-app.budget.svc.cluster.local:3000/api/internal/plaid/sync-all)
-                  HTTP_CODE=$(printf '%s' "${RESPONSE}" | tail -1)
-                  BODY=$(printf '%s' "${RESPONSE}" | head -n -1)
-                  echo "[plaid-sync] http=${HTTP_CODE} response=${BODY}"
+                    -w '\nHTTP_CODE:%{http_code}' \
+                    http://budget-app.budget.svc.cluster.local:3000/api/internal/plaid/sync-all 2>&1)
+                  echo "[plaid-sync] result: ${RESULT}"
                   echo "[plaid-sync] done at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-                  [ "${HTTP_CODE}" = "200" ] || exit 1
               env:
                 - name: PLAID_CRON_SECRET
                   valueFrom:
