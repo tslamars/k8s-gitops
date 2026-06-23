@@ -24,15 +24,16 @@ spec:
                 - sh
                 - -c
                 - |
-                  set -e
                   echo "[plaid-sync] starting at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-                  RESPONSE=$(curl -sf \
+                  HTTP_CODE=$(curl -s -o /tmp/body.txt -w "%{http_code}" \
                     -X POST \
                     -H "Content-Type: application/json" \
                     -H "x-cron-secret: ${PLAID_CRON_SECRET}" \
                     http://budget-app.budget.svc.cluster.local:3000/api/internal/plaid/sync-all)
-                  echo "[plaid-sync] response: ${RESPONSE}"
+                  BODY=$(cat /tmp/body.txt)
+                  echo "[plaid-sync] http=${HTTP_CODE} response=${BODY}"
                   echo "[plaid-sync] done at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+                  [ "${HTTP_CODE}" = "200" ] || exit 1
               env:
                 - name: PLAID_CRON_SECRET
                   valueFrom:
