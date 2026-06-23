@@ -4,6 +4,8 @@ kind: CronJob
 metadata:
   name: budget-plaid-sync
   namespace: budget
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
 spec:
   schedule: "0 */4 * * *"   # every 4 hours
   concurrencyPolicy: Forbid  # skip if previous run is still going
