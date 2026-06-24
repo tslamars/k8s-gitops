@@ -46,7 +46,7 @@ spec:
             image:
               repository: ghcr.io/pipitonelabs/budget-app
               # Digest-pinned: Renovate bumps this on each new migrate-latest push.
-              tag: migrate-latest@sha256:87cd7d78034b321f259dec6fb7a628b7ddb850f70de72203cd1d59944a1e7a3a
+              tag: migrate-latest@sha256:166e1fa80574afaa3e10ab02c7df158298b652caa5dad0d677e0604e81b765ae
             env:
               DATABASE_URL:
                 valueFrom:
@@ -58,7 +58,7 @@ spec:
             image:
               repository: ghcr.io/pipitonelabs/budget-app
               # Digest-pinned: Renovate bumps this on each new latest push.
-              tag: latest@sha256:27ba7bd288322b4b9cbfcacb4fecfb0f13ac8edb0286dffdcfd060fdaf6c940e
+              tag: latest@sha256:283fb5f85d6662e474bbdc570322c678105dcfb35d3b6a6592a0d6925357b394
             env:
               DATABASE_URL:
                 valueFrom:
