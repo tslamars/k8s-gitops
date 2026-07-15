@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: docker.io/supabase/realtime
-              tag: v2.112.4
+              tag: v2.114.0
             env:
               PORT: "4000"
               DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
