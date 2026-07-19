@@ -39,7 +39,7 @@ spec:
               # Digest-pinned: Spegel serves the mutable `latest` tag from peer
               # cache, so a bare `latest` won't pull new builds. Renovate bumps
               # the digest on each new image.
-              tag: latest@sha256:4613e0d18ee5b0be92e347c33c006611a15324dbf57a21602192a63d14673581
+              tag: latest@sha256:0058eacb0b84b285cfc7558776d8f1dff8467fdbdfa9b9065795f64109557ec4
             probes:
               liveness: &probe
                 enabled: true
