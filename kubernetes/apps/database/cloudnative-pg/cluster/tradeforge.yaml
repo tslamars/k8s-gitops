@@ -84,9 +84,16 @@ spec:
             key: 0004_performance_indexes.sql
           # Renames ticino_* -> swappybot_*. Applied to the live cluster by
           # hand on 2026-07-19; listed here so a rebuilt cluster reaches the
-          # same schema. 0006 (compat teardown) is added at Phase 3.
+          # same schema.
           - name: tradeforge-bootstrap-sql
             key: 0005_rename_ticino_to_swappybot.sql
+          # Drops the ticino_* compat views from 0005. Reporter/web images
+          # confirmed rebuilt and running against swappybot_* on 2026-07-19,
+          # so safe to include for a fresh bootstrap. NOT yet applied to the
+          # live cluster — that DROP is a deliberate manual step, run once
+          # you're confident no other consumer still reads the old names.
+          - name: tradeforge-bootstrap-sql
+            key: 0006_drop_ticino_compat.sql
           - name: tradeforge-bootstrap-sql
             key: seed.sql
   nodeMaintenanceWindow:

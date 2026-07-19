@@ -20,10 +20,13 @@ configMapGenerator:
       - ./sql/0003_reporter_rate_limit.sql
       - ./sql/0004_performance_indexes.sql
       - ./sql/0005_rename_ticino_to_swappybot.sql
-      # 0006_drop_ticino_compat.sql is intentionally NOT bootstrapped yet — it
-      # is Phase 3 of the rename and must not run until the reporter and web
-      # images are rebuilt against the swappybot_* names. Add it here, and to
-      # tradeforge.yaml, once that rollout is verified.
+      # Phase 3 of the rename. Safe on a FRESH bootstrap (0005's compat views
+      # are created and dropped in the same initdb run, before any client ever
+      # sees them) — but on the LIVE cluster this only runs via
+      # postInitApplicationSQLRefs at cluster creation, never on an existing
+      # one. Apply 0006 to the live cluster by hand once the reporter/web
+      # rollout is verified; this bootstrap entry does not do that for you.
+      - ./sql/0006_drop_ticino_compat.sql
       - ./sql/seed.sql
 generatorOptions:
   disableNameSuffixHash: true
