@@ -35,7 +35,13 @@ spec:
         - name: tradeforge-realtime
           port: 4000
     # Reporter handles any non-/health path as a trade POST; no rewrite needed.
+    # ticino-reporter is a deprecated alias, kept so a chart still pointed at
+    # the old URL keeps reporting instead of silently falling through to the
+    # SPA rule below and getting HTML back. Remove it once every Sierra Chart
+    # instance has its "Supabase Edge Function URL" input updated to
+    # .../functions/v1/swappybot-reporter.
     - matches:
+        - path: { type: PathPrefix, value: /functions/v1/swappybot-reporter }
         - path: { type: PathPrefix, value: /functions/v1/ticino-reporter }
       backendRefs:
         - name: tradeforge-reporter
