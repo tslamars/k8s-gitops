@@ -19,6 +19,11 @@ configMapGenerator:
       - ./sql/0002_harden_rls_drop_public_read.sql
       - ./sql/0003_reporter_rate_limit.sql
       - ./sql/0004_performance_indexes.sql
+      - ./sql/0005_rename_ticino_to_swappybot.sql
+      # 0006_drop_ticino_compat.sql is intentionally NOT bootstrapped yet — it
+      # is Phase 3 of the rename and must not run until the reporter and web
+      # images are rebuilt against the swappybot_* names. Add it here, and to
+      # tradeforge.yaml, once that rollout is verified.
       - ./sql/seed.sql
 generatorOptions:
   disableNameSuffixHash: true

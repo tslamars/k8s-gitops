@@ -82,6 +82,11 @@ spec:
             key: 0003_reporter_rate_limit.sql
           - name: tradeforge-bootstrap-sql
             key: 0004_performance_indexes.sql
+          # Renames ticino_* -> swappybot_*. Applied to the live cluster by
+          # hand on 2026-07-19; listed here so a rebuilt cluster reaches the
+          # same schema. 0006 (compat teardown) is added at Phase 3.
+          - name: tradeforge-bootstrap-sql
+            key: 0005_rename_ticino_to_swappybot.sql
           - name: tradeforge-bootstrap-sql
             key: seed.sql
   nodeMaintenanceWindow:
