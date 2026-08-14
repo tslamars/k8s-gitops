@@ -29,7 +29,7 @@ spec:
           app:
             image:
               repository: supabase/postgres-meta
-              tag: v0.97.0@sha256:e7da2ab376a7ff7b1e0c8dc98176dddab1f3646dded244d74e26c4e50a1d58c2
+              tag: v0.98.0@sha256:cef71ba901751dcc242cc685cf13786935ea8926820fb342f23bb0fbef77de5a
             env:
               PG_META_PORT: &port 8080
               PG_META_DB_HOST: tradeforge-pg-rw.database.svc.cluster.local
