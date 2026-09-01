@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/home-operations/kromgo
-              tag: 0.14.12@sha256:f25f94610ba3b7e71753d3a33fdd9c47a2d94aab0b16eac15d0e53cfe52bf4fe
+              tag: 0.16.1@sha256:ad39dd32da600ea261112e7a098345d474d48c997790b0373eb651c66e490844
             env:
               PROMETHEUS_URL: http://prometheus-operated.observability.svc.cluster.local:9090
               HEALTH_PORT: &healthPort 8080
