@@ -26,7 +26,7 @@ spec:
           app:
             image:
               repository: ghcr.io/unpoller/unpoller
-              tag: v3.4.0@sha256:4b4484301648d5f84b691c5702ce270d94d59d8a39e48148ff02ad563f3b51ff
+              tag: v5.2.2@sha256:368126bce83af861109e1889d19786071cbf43fc39ef42026910b9717c20a107
             env:
               TZ: America/New_York
               UP_UNIFI_DEFAULT_ROLE: k8s-gitops
