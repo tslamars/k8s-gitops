@@ -36,7 +36,7 @@ spec:
           02-migrate:
             image:
               repository: docker.io/outlinewiki/outline
-              tag: 1.8.1@sha256:e224dcbe34670bdae8835c32d5abc692d3560dfa262b72fb7232f4d87185aebd
+              tag: 1.10.0@sha256:cc9f1f05fd7cd316745b5fc9cfe01e681b1b4cf97705d1d812a5c778d7986cfd
             command: ["node", "./node_modules/.bin/sequelize", "db:migrate", "--env=production-ssl-disabled"]
             env:
               DATABASE_URL:
@@ -55,7 +55,7 @@ spec:
           app:
             image:
               repository: docker.io/outlinewiki/outline
-              tag: 1.8.1@sha256:e224dcbe34670bdae8835c32d5abc692d3560dfa262b72fb7232f4d87185aebd
+              tag: 1.10.0@sha256:cc9f1f05fd7cd316745b5fc9cfe01e681b1b4cf97705d1d812a5c778d7986cfd
             command: ["node", "./build/server/index.js", "--env=production-ssl-disabled"]
             env:
               DATABASE_URL:
