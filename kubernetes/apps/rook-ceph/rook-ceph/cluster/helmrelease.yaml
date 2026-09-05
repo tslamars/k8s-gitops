@@ -45,6 +45,18 @@ spec:
       csi:
         readAffinity:
           enabled: true
+      # Rotate daemon/service cephx keys to the new aes256k key type (Ceph 20.2.4,
+      # CVE-2025-30156). Clears the AUTH_INSECURE_SERVICE_KEY_TYPE / _SERVICE_TICKETS
+      # HEALTH_ERR. Rook auto-rotates admin + daemon keys and their Secret mirrors;
+      # bumping keyGeneration triggers the rotation (current status generation: 1).
+      # NOTE: CSI client keys are intentionally NOT rotated here — aes256k needs
+      # kernel 7.0+, and these nodes run 6.18.x (Talos). Rotating CSI keys now would
+      # break PVC mounts. Revisit the csi block once nodes run kernel 7.0+.
+      security:
+        cephx:
+          daemon:
+            keyRotationPolicy: KeyGeneration
+            keyGeneration: 2
       dashboard:
         enabled: true
         urlPrefix: /
