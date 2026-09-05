@@ -96,9 +96,8 @@ spec:
             enabled: true
     worker:
       autoscaling:
-        enabled: true
-        minReplicas: 1
-        maxReplicas: 10
+        enabled: false
+      replicas: 2
       resources:
         requests:
           cpu: 200m
