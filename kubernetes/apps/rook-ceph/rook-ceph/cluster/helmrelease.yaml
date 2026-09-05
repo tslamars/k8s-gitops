@@ -49,14 +49,32 @@ spec:
       # CVE-2025-30156). Clears the AUTH_INSECURE_SERVICE_KEY_TYPE / _SERVICE_TICKETS
       # HEALTH_ERR. Rook auto-rotates admin + daemon keys and their Secret mirrors;
       # bumping keyGeneration triggers the rotation (current status generation: 1).
-      # NOTE: CSI client keys are intentionally NOT rotated here — aes256k needs
-      # kernel 7.0+, and these nodes run 6.18.x (Talos). Rotating CSI keys now would
-      # break PVC mounts. Revisit the csi block once nodes run kernel 7.0+.
+      # NOTE: CSI client keys are intentionally pinned to aes — aes256k needs
+      # kernel 7.0+, and these nodes run 6.18.x (Talos, incl. 1.14.x). Rotating CSI
+      # keys to aes256k now would break PVC mounts. Revisit once nodes run kernel 7.0+.
       security:
         cephx:
           daemon:
             keyRotationPolicy: KeyGeneration
             keyGeneration: 2
+          csi:
+            keyType: aes
+      # Mute the residual cephx "insecure key type" warnings that remain after the
+      # daemon-key rotation. These are expected and unfixable until CSI keys can move
+      # to aes256k (kernel 7.0+): the CSI client keys stay on aes, and the mons must
+      # keep allowing/creating aes keys for them. Muting returns Ceph to HEALTH_OK so
+      # the tuppr TalosUpgrade health gate passes and CephHealthWarning stops firing.
+      # Remove these mutes once CSI keys are rotated to aes256k.
+      healthCheck:
+        muteHealthWarning:
+          AUTH_INSECURE_CLIENT_KEY_TYPE:
+            policy: mute
+          AUTH_INSECURE_KEYS_ALLOWED:
+            policy: mute
+          AUTH_INSECURE_KEYS_CREATABLE:
+            policy: mute
+          AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE:
+            policy: mute
       dashboard:
         enabled: true
         urlPrefix: /
