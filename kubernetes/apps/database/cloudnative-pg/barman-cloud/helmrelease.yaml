@@ -13,3 +13,8 @@ spec:
       create: true
     rbac:
       create: true
+    certificate:
+      # Renew 30d before expiry so renewal happens ahead of the 21d
+      # CertManagerCertExpirySoon alert window (chart default renewBefore is
+      # 360h/15d, which is < the 21d threshold and fires the alert every cycle).
+      renewBefore: 720h
